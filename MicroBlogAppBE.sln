@@ -2,6 +2,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroBlog.Api", "MicroBlog.Api\MicroBlog.Api.csproj", "{246EAD6F-6C6E-43C2-B3FC-315F601F0E32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroBlog.Core", "MicroBlog.Core\MicroBlog.Core.csproj", "{FDE72A59-E191-4DBD-AC17-42211D55307E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroBlog.Repository", "MicroBlog.Repository\MicroBlog.Repository.csproj", "{47EC9E02-0B53-46C2-93D7-49AFBF9D4018}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroBlog.Service", "MicroBlog.Service\MicroBlog.Service.csproj", "{8EB0CF5D-6D44-4C52-8276-D316941D27D8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +18,17 @@ Global
 		{246EAD6F-6C6E-43C2-B3FC-315F601F0E32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{246EAD6F-6C6E-43C2-B3FC-315F601F0E32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{246EAD6F-6C6E-43C2-B3FC-315F601F0E32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDE72A59-E191-4DBD-AC17-42211D55307E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDE72A59-E191-4DBD-AC17-42211D55307E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDE72A59-E191-4DBD-AC17-42211D55307E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDE72A59-E191-4DBD-AC17-42211D55307E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47EC9E02-0B53-46C2-93D7-49AFBF9D4018}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47EC9E02-0B53-46C2-93D7-49AFBF9D4018}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47EC9E02-0B53-46C2-93D7-49AFBF9D4018}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47EC9E02-0B53-46C2-93D7-49AFBF9D4018}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EB0CF5D-6D44-4C52-8276-D316941D27D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EB0CF5D-6D44-4C52-8276-D316941D27D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EB0CF5D-6D44-4C52-8276-D316941D27D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EB0CF5D-6D44-4C52-8276-D316941D27D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

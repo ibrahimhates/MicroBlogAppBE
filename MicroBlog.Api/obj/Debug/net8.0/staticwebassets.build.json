@@ -1,8 +1,8 @@
 {
   "Version": 1,
-  "Hash": "J2tXAdWat/clXJcRr5dIq6exsSYz6ZvBlpJPkLDkPNU=",
-  "Source": "MicroBlogAppBE",
-  "BasePath": "_content/MicroBlogAppBE",
+  "Hash": "WSMERg9M1guPuudWE4Num45U7JJY7/Bm8dwVGNvTeFs=",
+  "Source": "MicroBlog.Api",
+  "BasePath": "_content/MicroBlog.Api",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
