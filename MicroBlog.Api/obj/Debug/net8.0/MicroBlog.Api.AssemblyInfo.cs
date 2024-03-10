@@ -10,12 +10,12 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("MicroBlogAppBE")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("MicroBlog.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
-[assembly: System.Reflection.AssemblyProductAttribute("MicroBlogAppBE")]
-[assembly: System.Reflection.AssemblyTitleAttribute("MicroBlogAppBE")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8314c9f302178dbadd29d579f05a412b1f9b1f7e")]
+[assembly: System.Reflection.AssemblyProductAttribute("MicroBlog.Api")]
+[assembly: System.Reflection.AssemblyTitleAttribute("MicroBlog.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
 
 // MSBuild WriteCodeFragment sınıfı tarafından oluşturuldu.

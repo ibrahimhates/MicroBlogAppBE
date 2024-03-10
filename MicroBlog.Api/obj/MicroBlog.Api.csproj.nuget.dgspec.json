@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlogAppBE\\MicroBlogAppBE.csproj": {}
+    "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Api\\MicroBlog.Api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlogAppBE\\MicroBlogAppBE.csproj": {
+    "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Api\\MicroBlog.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlogAppBE\\MicroBlogAppBE.csproj",
-        "projectName": "MicroBlogAppBE",
-        "projectPath": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlogAppBE\\MicroBlogAppBE.csproj",
+        "projectUniqueName": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Api\\MicroBlog.Api.csproj",
+        "projectName": "MicroBlog.Api",
+        "projectPath": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Api\\MicroBlog.Api.csproj",
         "packagesPath": "C:\\Users\\ibrahim\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlogAppBE\\obj\\",
+        "outputPath": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ibrahim\\AppData\\Roaming\\NuGet\\NuGet.Config"

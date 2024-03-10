@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroBlogAppBE", "MicroBlogAppBE\MicroBlogAppBE.csproj", "{246EAD6F-6C6E-43C2-B3FC-315F601F0E32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroBlog.Api", "MicroBlog.Api\MicroBlog.Api.csproj", "{246EAD6F-6C6E-43C2-B3FC-315F601F0E32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
