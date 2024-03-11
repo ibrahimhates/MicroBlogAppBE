@@ -1,4 +1,6 @@
+using MicroBlog.Repository.Context;
 using MicroBlogAppBE.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,7 @@ builder.Services.AddSwaggerGen();
 
 // Configure Sql connection string
 builder.Services.ConfigureSqlContext(builder.Configuration);
+
 
 var app = builder.Build();
 

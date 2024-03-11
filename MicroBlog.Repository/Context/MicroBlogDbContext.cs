@@ -6,10 +6,11 @@ namespace MicroBlog.Repository.Context;
 
 public class MicroBlogDbContext : DbContext
 {
-    public MicroBlogDbContext(DbContextOptions options) : base(options)
+    public MicroBlogDbContext(DbContextOptions<MicroBlogDbContext> options) : base(options)
     { }
-    private DbSet<User> Users { get; set; }
-    private DbSet<UserToken> UserTokens { get; set; }
+    
+    DbSet<User> Users { get; set; }
+    DbSet<UserToken> UserTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
