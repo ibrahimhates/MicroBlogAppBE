@@ -1,8 +1,8 @@
-using MicroBlog.Core.Entities.BaseEntity;
+using MicroBlog.Core.Entities.Base;
 
 namespace MicroBlog.Core.Entities;
 
-public class UserToken : IEntity
+public class UserToken : BaseEntity,IEntity
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }

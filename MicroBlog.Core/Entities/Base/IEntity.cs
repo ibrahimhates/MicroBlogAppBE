@@ -1,4 +1,4 @@
-namespace MicroBlog.Core.Entities.BaseEntity;
+namespace MicroBlog.Core.Entities.Base;
 
 public interface IEntity
 {

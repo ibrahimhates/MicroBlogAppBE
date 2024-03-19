@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "q8cPCNdxc0JR0xjR/f1h+g2r0M/fi4vP7E3J3cmJUbKU02HJ04f4zTqR1FhwkFzmPVBN83H7Q/zwn9hWWEMkDA==",
+  "dgSpecHash": "DPy1a827mBdM8wpPfuhTDTveufOB/SucrVadAKiupn9mVVqq+fWoCoJ9FBqEvmflksswynlcqH5hrT5otS0BxA==",
   "success": true,
   "projectFilePath": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Core\\MicroBlog.Core.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\ibrahim\\.nuget\\packages\\fluentvalidation\\11.9.0\\fluentvalidation.11.9.0.nupkg.sha512",
+    "C:\\Users\\ibrahim\\.nuget\\packages\\fluentvalidation.dependencyinjectionextensions\\11.9.0\\fluentvalidation.dependencyinjectionextensions.11.9.0.nupkg.sha512",
+    "C:\\Users\\ibrahim\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\2.1.0\\microsoft.extensions.dependencyinjection.abstractions.2.1.0.nupkg.sha512"
+  ],
   "logs": []
 }

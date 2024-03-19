@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using MicroBlog.Core.Entities.BaseEntity;
+using MicroBlog.Core.Entities.Base;
 
 namespace MicroBlog.Core.Repositories.GenericRepo;
 
@@ -82,7 +82,7 @@ public interface IGenericRepository<T> where T : class, IEntity
     /// <returns>
     /// An <see cref="Task"/> that represents the input sequence
     /// </returns>
-    Task CreateAsync(T entity);
+    Task CreateAsync(T entity,CancellationToken cancellationToken = default);
     
     /// <summary>
     /// This method adds multiple records asynchronously
@@ -95,7 +95,7 @@ public interface IGenericRepository<T> where T : class, IEntity
     /// <returns>
     /// An <see cref="Task"/> that represents the input sequence
     /// </returns>
-    Task CreateAsync(IEnumerable<T> entities);
+    Task CreateAsync(IEnumerable<T> entities,CancellationToken cancellationToken = default);
     
     /// <summary>
     /// This method updates a record simultaneously
