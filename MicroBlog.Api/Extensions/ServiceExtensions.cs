@@ -1,8 +1,14 @@
+using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
+using MicroBlog.Core.Abstractions.Services;
+using MicroBlog.Core.Hash;
 using MicroBlog.Repository.Concretes;
 using MicroBlog.Repository.Context;
+using MicroBlog.Repository.UnitOfWork;
+using MicroBlog.Service.Concretes;
+using MicroBlog.Service.Concretes.Jwt;
+using MicroBlog.Service.Mapping;
 using MicroBlogAppBE.OptionSetup;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 namespace MicroBlogAppBE.Extensions;
@@ -20,13 +26,22 @@ public static class ServiceExtensions
         services.ConfigureOptions<JwtOptionsSetup>();
         services.ConfigureOptions<JwtBearerOptionsSetup>();
     }
+    
+    public static void ConfigureAutoMapper(this IServiceCollection services)
+    {
+        services.AddAutoMapper(typeof(Mapper));
+    }
+    
     public static void ConfigureRepositories(this IServiceCollection services)
     {
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
     }
 
     public static void ConfigureServices(this IServiceCollection services)
     {
+        services.AddScoped<IJwtProvider, JwtProvider>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
     }
 }

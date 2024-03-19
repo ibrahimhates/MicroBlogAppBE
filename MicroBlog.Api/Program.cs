@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Controller configure added
 builder.Services.AddControllers();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -15,6 +17,9 @@ builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer();
 
+// Configure AutoMapper
+builder.Services.ConfigureAutoMapper();
+
 // JwtOptions and JwtBearerSetup configuration right here
 builder.Services.ConfigureJwtSetup();
 
@@ -23,7 +28,6 @@ builder.Services.ConfigureRepositories();
 
 // services configure Addscoped
 builder.Services.ConfigureServices();
-
 
 var app = builder.Build();
 

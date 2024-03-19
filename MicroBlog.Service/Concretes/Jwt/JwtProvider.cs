@@ -23,7 +23,7 @@ public sealed class JwtProvider : IJwtProvider
         {
             new Claim(JwtRegisteredClaimNames.Sub,user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email,user.Email),
-            new Claim(JwtRegisteredClaimNames.Name,user.Email)
+            new Claim(JwtRegisteredClaimNames.Name,user.UserName)
         };
 
         var signingCredentials = new SigningCredentials(
