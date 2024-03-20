@@ -20,8 +20,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // Configure AutoMapper
 builder.Services.ConfigureAutoMapper();
 
-// JwtOptions and JwtBearerSetup configuration right here
+// JwtOptions bind and JwtBearerSetup configuration 
 builder.Services.ConfigureJwtSetup();
+
+// Emailoptions Bind configuration
+builder.Services.ConfigureEmailSetup();
 
 // repository configure Addscoped
 builder.Services.ConfigureRepositories();

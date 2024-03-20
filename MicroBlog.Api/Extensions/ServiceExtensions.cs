@@ -9,6 +9,7 @@ using MicroBlog.Service.Concretes;
 using MicroBlog.Service.Concretes.Jwt;
 using MicroBlog.Service.Mapping;
 using MicroBlogAppBE.OptionSetup;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace MicroBlogAppBE.Extensions;
@@ -25,6 +26,12 @@ public static class ServiceExtensions
     {
         services.ConfigureOptions<JwtOptionsSetup>();
         services.ConfigureOptions<JwtBearerOptionsSetup>();
+        services.AddScoped<IJwtProvider, JwtProvider>();
+    }
+    
+    public static void ConfigureEmailSetup(this IServiceCollection services)
+    {
+        services.ConfigureOptions<EmailOptionsSetup>();
     }
     
     public static void ConfigureAutoMapper(this IServiceCollection services)
@@ -40,7 +47,6 @@ public static class ServiceExtensions
 
     public static void ConfigureServices(this IServiceCollection services)
     {
-        services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
     }
