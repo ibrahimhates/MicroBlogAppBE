@@ -1,16 +1,25 @@
+using System.Text;
+using MicroBlog.Core.Abstractions.EmailService;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
 using MicroBlog.Core.Abstractions.Services;
+using MicroBlog.Core.Entities;
 using MicroBlog.Core.Hash;
 using MicroBlog.Repository.Concretes;
 using MicroBlog.Repository.Context;
 using MicroBlog.Repository.UnitOfWork;
 using MicroBlog.Service.Concretes;
+using MicroBlog.Service.Concretes.EMailService;
 using MicroBlog.Service.Concretes.Jwt;
 using MicroBlog.Service.Mapping;
 using MicroBlogAppBE.OptionSetup;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace MicroBlogAppBE.Extensions;
 
@@ -22,15 +31,40 @@ public static class ServiceExtensions
             options.UseSqlServer(configuration.GetConnectionString("sqlConnection"))
         );
 
-    public static void ConfigureJwtSetup(this IServiceCollection services)
+    public static void ConfigureSwaggerGenSetup(this IServiceCollection services)
     {
+        services.AddSwaggerGen();
+        services.ConfigureOptions<SwaggerGenOptionsSetup>();
+    }
+    public static void ConfigureJwtSetup(this IServiceCollection services,IConfiguration configuration)
+    {
+        //services.ConfigureOptions<JwtBearerOptionsSetup>();
+        var _jwtOptions = configuration.GetSection("Jwt");
+        
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _jwtOptions["Issuer"],
+                    ValidAudience = _jwtOptions["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(_jwtOptions["SecretKey"]))
+                };
+            });
+        
         services.ConfigureOptions<JwtOptionsSetup>();
-        services.ConfigureOptions<JwtBearerOptionsSetup>();
         services.AddScoped<IJwtProvider, JwtProvider>();
     }
     
-    public static void ConfigureEmailSetup(this IServiceCollection services)
+    public static void ConfigureEmailServiceSetup(this IServiceCollection services)
     {
+        services.AddSingleton<IHttpContextAccessor,HttpContextAccessor>();
+        services.AddTransient<IEMailSender,EMailSender>();
         services.ConfigureOptions<EmailOptionsSetup>();
     }
     

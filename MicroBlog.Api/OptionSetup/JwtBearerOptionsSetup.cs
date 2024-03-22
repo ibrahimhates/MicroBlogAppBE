@@ -6,7 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace MicroBlogAppBE.OptionSetup;
 
-public class JwtBearerOptionsSetup : IConfigureOptions<JwtBearerOptions>
+public class JwtBearerOptionsSetup
+    : IConfigureOptions<JwtBearerOptions>
 {
     private readonly JwtOptions _jwtOptions;
 
@@ -14,7 +15,6 @@ public class JwtBearerOptionsSetup : IConfigureOptions<JwtBearerOptions>
     {
         _jwtOptions = jwtOptions.Value;
     }
-
     public void Configure(JwtBearerOptions options)
     {
         options.TokenValidationParameters = new()

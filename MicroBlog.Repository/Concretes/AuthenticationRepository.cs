@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using MicroBlog.Core.Abstractions.Repositories;
 using MicroBlog.Core.Entities;
 using MicroBlog.Repository.Concretes.GenericRepo;
@@ -15,6 +16,7 @@ public class AuthenticationRepository :  GenericRepository<User>, IAuthenticatio
     public async Task<User> GetByEmailAsync(string email,bool trackChanges = false)
     {
         var user = await GetByCondition(user => user.Email == email, trackChanges)
+            .Include(usr => usr.UserToken)
             .FirstOrDefaultAsync();
 
         return user;
@@ -23,8 +25,30 @@ public class AuthenticationRepository :  GenericRepository<User>, IAuthenticatio
     public async Task<User> GetByUserNameAsync(string userName,bool trackChanges = false)
     {
         var user = await GetByCondition(user => user.UserName == userName, trackChanges)
+            .Include(usr => usr.UserToken)
             .FirstOrDefaultAsync();
 
         return user;
+    }
+
+    public async Task<string> GenerateEmailVerifyTokenAsync()
+    {
+        byte[] tokenBytes = GenerateRandomBytes(64);
+        
+        string token = Convert.ToBase64String(tokenBytes);
+        
+        return await Task.FromResult(token);
+    }
+    
+    private byte[] GenerateRandomBytes(int length)
+    {
+        byte[] randomBytes = new byte[length];
+        
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomBytes);
+        }
+        
+        return randomBytes;
     }
 }

@@ -26,6 +26,17 @@ public class Response<T>
         return new Response<T> { Data = data, StatusCode = statusCode, IsSuccessful = true, Pagination = pager };
     }
     
+    public static Response<T> Success(List<string> messages, int statusCode, Pager pager = null)
+    {
+        return new Response<T> { Messages = messages, StatusCode = statusCode, IsSuccessful = true, Pagination = pager };
+    }
+    
+    public static Response<T> Success(string message, int statusCode, Pager pager = null)
+    {
+        return new Response<T> { Messages =new List<string>() { message }, StatusCode = statusCode, IsSuccessful = true, Pagination = pager };
+    }
+
+    
     public static Response<T> Fail(List<string> errors, int statusCode)
     {
         return new Response<T>

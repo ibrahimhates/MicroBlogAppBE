@@ -1,7 +1,9 @@
+using System.Text;
 using MicroBlogAppBE.Extensions;
 using MicroBlogAppBE.OptionSetup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,22 +11,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+// Configure Swaggergensetup
+builder.Services.ConfigureSwaggerGenSetup();
 
 // Configure Sql connection string
 builder.Services.ConfigureSqlContext(builder.Configuration);
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer();
 
 // Configure AutoMapper
 builder.Services.ConfigureAutoMapper();
 
 // JwtOptions bind and JwtBearerSetup configuration 
-builder.Services.ConfigureJwtSetup();
+builder.Services.ConfigureJwtSetup(builder.Configuration); // todo gecici olarak parametre aliyor
 
 // Emailoptions Bind configuration
-builder.Services.ConfigureEmailSetup();
+builder.Services.ConfigureEmailServiceSetup();
 
 // repository configure Addscoped
 builder.Services.ConfigureRepositories();

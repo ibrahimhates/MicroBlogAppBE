@@ -1,6 +1,7 @@
 using MicroBlog.Core.Abstractions.Services;
 using MicroBlog.Core.Dtos.AuthDto.Request;
 using MicroBlogAppBE.Controllers.CustomControllerBase;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MicroBlogAppBE.Controllers;
@@ -32,5 +33,20 @@ public class AuthController : CustomController
         var response = await _service.RegisterUserRequestAsync(registerRequest);
 
         return CreateActionResultInstance(response);
+    }
+
+    [HttpGet("verifyEmail")]
+    public async Task<IActionResult> VerifyEmail(string token,string email)
+    {
+        var response = await _service.VerifyUserRequestAsync(new (email, token));
+        
+        return CreateActionResultInstance(response);
+    }
+
+    [Authorize]
+    [HttpGet("test")]
+    public async Task<IActionResult> Test()
+    {
+        return Ok("Hello World");
     }
 }

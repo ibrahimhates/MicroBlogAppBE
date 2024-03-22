@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace MicroBlog.Service.Concretes.EMailService;
 
-public class EMailSender : IEmailSender<User>
+public class EMailSender : IEMailSender
 {
     private readonly EMailOptions _options;
     private readonly SmtpClient _client;
@@ -21,26 +21,26 @@ public class EMailSender : IEmailSender<User>
         };
     }
 
-    public Task SendMailVerifyAsync(User user, string verifyCode)
+    public Task SendMailVerifyAsync(string toEmail, string resetLink)
     {
         return _client.SendMailAsync(
             new MailMessage(
                 from: _options.From,
-                to: user.Email,
-                "Account Verification Code",
-                $"You can use the following verification code to verify your account:" +
-                $"\n\nVerification Code: [{verifyCode}]"));
+                to: toEmail,
+                "Email Verification Link",
+                $"You can use the following verification link to verify your account:" +
+                $"\n\nYour single-use verification Link: {resetLink}"));
     }
 
-    public Task SendForgetPasswordAsync(User user, string verifyCode)
+    public Task SendForgetPasswordAsync(string toEmail, string verifyCode)
     {
         return _client.SendMailAsync(
             new MailMessage(
                 from: _options.From,
-                to: user.Email,
+                to: toEmail,
                 "Password Reset Code",
                 $"Your request to reset your password has been confirmed. " +
                 $"Below is the verification code you need to use for the password reset process:" +
-                $"\n\nVerification Code: [{verifyCode}]"));
+                $"\n\nYour single-use verification code: [{verifyCode}]"));
     }
 }

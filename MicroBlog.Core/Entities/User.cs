@@ -11,6 +11,8 @@ public class User : BaseEntity,IEntity
     public byte[]? ProfilePicture { get; set; }
     public string FullName => $"{FirstName} {LastName}";
     public string Email { get; set; }
+    public string? EmailVerifyToken { get; set; }
+    public bool VerifyEmail { get; set; } = false;
     public string PhoneNumber { get; set; }
     public string PasswordHash { get; set; }
     public bool IsActive { get; set; }
