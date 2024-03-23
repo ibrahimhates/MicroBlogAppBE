@@ -3,6 +3,7 @@ using MicroBlog.Core.Abstractions.EmailService;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
 using MicroBlog.Core.Abstractions.Services;
+using MicroBlog.Core.Behaviour;
 using MicroBlog.Core.Dtos.AuthDto.Request;
 using MicroBlog.Core.Dtos.AuthDto.Response;
 using MicroBlog.Core.Entities;
@@ -12,7 +13,6 @@ using MicroBlog.Core.ResponseResult.Dtos;
 using MicroBlog.Repository.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.IdentityModel.Tokens;
 
 namespace MicroBlog.Service.Concretes;
 
@@ -56,7 +56,7 @@ public class AuthenticationService : IAuthenticationService
         if (!_passwordHasher.Verify(user.PasswordHash, loginRequest.Password))
         {
             return Core.ResponseResult.Response<UserTokenResponse>
-                .Fail($"User password does not matching", 400);
+                .Fail($"User password does not matching", 401);
         }
 
         if (!user.VerifyEmail)
@@ -66,7 +66,7 @@ public class AuthenticationService : IAuthenticationService
         }
 
         var token = _provider.Generate(user);
-        // todo Token dogrulama db ile yapilacak tam burda
+
         if (user.UserToken is not UserToken)
         {
             user.UserToken = new();
@@ -96,14 +96,14 @@ public class AuthenticationService : IAuthenticationService
         user.PasswordHash = _passwordHasher.Hash(registerRequest.Password);
 
 
-        var emailToken = await _repository.GenerateEmailVerifyTokenAsync();
+        var emailToken = await _repository.GenerateVerifyAndResetTokenAsync();
         var confirmationLink = GenerateLink(user.Email, emailToken);
-        
+
         user.EmailVerifyToken = emailToken;
         await _repository.CreateAsync(user);
-        
+
         await _unitOfWork.SaveAsync();
-        
+
         try
         {
             await _mailSender.SendMailVerifyAsync(user.Email, confirmationLink);
@@ -133,34 +133,167 @@ public class AuthenticationService : IAuthenticationService
         if (user.VerifyEmail)
         {
             return Core.ResponseResult.Response<NoContent>
-                .Fail($"User is already verify", 208);// todo degistir 400
+                .Fail($"User is already verify", 400);
         }
 
-        if (user.EmailVerifyToken.IsNullOrEmpty())
+        if (string.IsNullOrEmpty(user.EmailVerifyToken))
         {
             return Core.ResponseResult.Response<NoContent>
                 .Fail($"Invalid token", 400);
         }
-        
-        if (user.EmailVerifyToken.Equals(verifyUserRequestDto.token))
-        {
-            user.VerifyEmail = true;
-            _repository.Update(user);
 
-            await _unitOfWork.SaveAsync();
-            
+        if (!user.EmailVerifyToken.Equals(verifyUserRequestDto.token))
             return Core.ResponseResult.Response<NoContent>
-                .Fail($"user has been successfully verified", 200);
-        }
-        
+                .Fail($"Invalid token", 400);
+
+        user.VerifyEmail = true;
+        _repository.Update(user);
+
+        await _unitOfWork.SaveAsync();
+
         return Core.ResponseResult.Response<NoContent>
-            .Fail($"Invalid token", 400);
+            .Success($"User has been successfully verified", 200);
     }
 
-    public Task<Core.ResponseResult.Response<NoContent>> ChangePasswordRequestAsync(
-        ChangePasswordRequest changePasswordRequest)
+    public async Task<Response<NoContent>> ForgetPasswordRequestAsync(
+        ForgetPasswordRequest forgetPasswordRequest)
     {
-        throw new NotImplementedException();
+        User? user;
+        if (forgetPasswordRequest.RequestType is ForgetPasswordRequestType.EMAIL)
+            user = await _repository.GetByEmailAsync(forgetPasswordRequest.ResetUserInfo);
+        else
+            user = await _repository.GetByUserNameAsync(forgetPasswordRequest.ResetUserInfo);
+
+        if (user is not User)
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"User could not found", 404);
+
+        if (user.PasswordResetCodeExpr > DateTime.Now)
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"You cannot receive a new reset code yet", 400);
+
+        var resetCode = GenerateResetCode();
+        user.PasswordResetCode = resetCode;
+        user.PasswordResetCodeExpr = DateTime.Now.AddMinutes(3);
+
+        _repository.Update(user);
+        await _unitOfWork.SaveAsync();
+
+        try
+        {
+            await _mailSender.SendForgetPasswordAsync(user.Email, resetCode);
+        }
+        catch (Exception e)
+        {
+            return Core.ResponseResult.Response<NoContent>
+                .Fail("An error was encountered while sending the verification mail." +
+                      " Please try again later.",
+                    500);
+        }
+
+        return Core.ResponseResult.Response<NoContent>
+            .Success($"The verification code was successfully sent to the following email {user.Email}"
+                , 200);
+    }
+
+    public async Task<Response<UserTokenForgetPasswordResponse>> ForgetPasswordRequestAsync(
+        ResetPasswordRequest resetPasswordRequest)
+    {
+        var user = await _repository.GetByEmailAsync(resetPasswordRequest.email);
+        if (user is not User)
+            return Core.ResponseResult.Response<UserTokenForgetPasswordResponse>
+                .Fail("User could not found", 404);
+
+        if (string.IsNullOrEmpty(user.PasswordResetCode))
+        {
+            return Core.ResponseResult.Response<UserTokenForgetPasswordResponse>
+                .Fail("Password reset code not found.", 404);
+        }
+
+        if (user.PasswordResetCodeExpr < DateTime.Now)
+        {
+            return Core.ResponseResult.Response<UserTokenForgetPasswordResponse>
+                .Fail("The verification code has expired. Please request new code", 400);
+        }
+
+        if (!user.PasswordResetCode.Equals(resetPasswordRequest.verifyCode))
+        {
+            return Core.ResponseResult.Response<UserTokenForgetPasswordResponse>
+                .Fail("The verification code is invalid. Please request a new code.", 400);
+        }
+
+        var token = await _repository.GenerateVerifyAndResetTokenAsync();
+        user.PasswordResetToken = token;
+        user.PasswordResetTokenExpr = DateTime.Now.AddHours(3);
+        user.PasswordResetCodeExpr = DateTime.Now;
+        user.PasswordResetCode = string.Empty;
+
+        _repository.Update(user);
+        await _unitOfWork.SaveAsync();
+
+        return Core.ResponseResult.Response<UserTokenForgetPasswordResponse>
+            .Success(new UserTokenForgetPasswordResponse(token), 404);
+    }
+
+    public async Task<Response<NoContent>> ResetPasswordRequest(ChangePasswordWithResetRequest resetRequest)
+    {
+        var user = await _repository.GetByEmailAsync(resetRequest.email);
+
+        if (user is not User)
+            return Core.ResponseResult.Response<NoContent>
+                .Fail("User could not found", 404);
+
+        if (string.IsNullOrEmpty(user.PasswordResetToken)
+            || user.PasswordResetTokenExpr < DateTime.Now
+            || !user.PasswordResetToken.Equals(resetRequest.token))
+            return Core.ResponseResult.Response<NoContent>
+                .Fail("Invalid token", 400);
+
+        if (!resetRequest.newPassword.Equals(resetRequest.newPasswordConfirm))
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"User new password and new passwordConfirm does not matching", 400);
+
+        if (_passwordHasher.Verify(user.PasswordHash, resetRequest.newPassword))
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"The user's old password cannot be the same as the new password", 400);
+
+        user.PasswordResetCodeExpr = DateTime.Now;
+        user.PasswordResetToken = string.Empty;
+        user.PasswordHash = _passwordHasher.Hash(resetRequest.newPassword);
+
+        _repository.Update(user);
+        await _unitOfWork.SaveAsync();
+
+        return Core.ResponseResult.Response<NoContent>
+            .Success($"User's password has been successfully changed", 200);
+    }
+
+    public async Task<Core.ResponseResult.Response<NoContent>> ChangePasswordRequestAsync(
+        string userId, ChangePasswordRequest chgPswRequest)
+    {
+        var user = await _repository.GetByIdAsync(new Guid(userId));
+
+        if (user is not User)
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"User could not found", 404);
+
+        if (!_passwordHasher.Verify(user.PasswordHash, chgPswRequest.CurrentPassword))
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"User's old password does not match", 400);
+
+        if (!chgPswRequest.NewPassword.Equals(chgPswRequest.ConfirmNewPassword))
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"User password and passwordConfirm does not matching", 400);
+
+        if (_passwordHasher.Verify(user.PasswordHash, chgPswRequest.NewPassword))
+            return Core.ResponseResult.Response<NoContent>
+                .Fail($"The user's old password cannot be the same as the new password", 400);
+
+        user.PasswordHash = _passwordHasher.Hash(chgPswRequest.NewPassword);
+        await _unitOfWork.SaveAsync();
+
+        return Core.ResponseResult.Response<NoContent>
+            .Success($"User's password has been successfully changed", 200);
     }
 
     private string? GenerateLink(string email, string token)
@@ -176,4 +309,7 @@ public class AuthenticationService : IAuthenticationService
 
         return confirmationLink;
     }
+
+    private string GenerateResetCode() =>
+        new Random().Next(100000, 999999).ToString();
 }

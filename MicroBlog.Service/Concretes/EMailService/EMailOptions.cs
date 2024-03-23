@@ -1,5 +1,4 @@
 namespace MicroBlog.Service.Concretes.EMailService;
-
 public class EMailOptions
 {
     public string From { get; init; }

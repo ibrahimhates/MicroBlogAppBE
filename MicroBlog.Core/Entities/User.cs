@@ -2,7 +2,7 @@ using MicroBlog.Core.Entities.Base;
 
 namespace MicroBlog.Core.Entities;
 
-public class User : BaseEntity,IEntity
+public sealed class User : BaseEntity, IEntity
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; }
@@ -11,8 +11,13 @@ public class User : BaseEntity,IEntity
     public byte[]? ProfilePicture { get; set; }
     public string FullName => $"{FirstName} {LastName}";
     public string Email { get; set; }
+    public string? OldEmail { get; set; }
     public string? EmailVerifyToken { get; set; }
-    public bool VerifyEmail { get; set; } = false;
+    public string? PasswordResetCode { get; set; }
+    public DateTime? PasswordResetCodeExpr { get; set; }
+    public string? PasswordResetToken { get; set; }
+    public DateTime PasswordResetTokenExpr { get; set; }
+    public bool VerifyEmail { get; set; }
     public string PhoneNumber { get; set; }
     public string PasswordHash { get; set; }
     public bool IsActive { get; set; }

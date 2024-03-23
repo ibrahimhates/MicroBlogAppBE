@@ -31,7 +31,7 @@ public class AuthenticationRepository :  GenericRepository<User>, IAuthenticatio
         return user;
     }
 
-    public async Task<string> GenerateEmailVerifyTokenAsync()
+    public async Task<string> GenerateVerifyAndResetTokenAsync()
     {
         byte[] tokenBytes = GenerateRandomBytes(64);
         

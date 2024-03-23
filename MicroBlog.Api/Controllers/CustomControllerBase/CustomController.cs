@@ -31,8 +31,8 @@ public class CustomController : ControllerBase
     [ApiExplorerSettings(IgnoreApi = true)]
     public string GetUserId()
     {
-        if (HttpContext.User.Claims.Any())
-            return HttpContext.User.Claims.First(f =>f.Type.Equals(JwtRegisteredClaimNames.Sub)).Value;
+        if (User.Claims.Any())
+            return User.Claims.FirstOrDefault(x => x.Type.Equals("usrId")).Value;
         
         return null;
     }
@@ -50,7 +50,7 @@ public class CustomController : ControllerBase
     public string GetUserEmail()
     {
         if (HttpContext.User.Claims.Any())
-            return HttpContext.User.Claims.First(f => f.Type.Equals(JwtRegisteredClaimNames.Email)).Value;
+            return HttpContext.User.Claims.First(f => f.Type.Equals("contact")).Value;
         
         return null;
     }
