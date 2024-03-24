@@ -8,6 +8,7 @@ namespace MicroBlog.Core.Abstractions.Services;
 public interface IAuthenticationService
 {
     Task<Response<UserTokenResponse>> LoginUserRequestAsync(LoginRequest loginRequest);
+    Task<Response<UserTokenResponse>> RefreshTokenAsync(UserTokenResponse refreshRequestToken);
     Task<Response<NoContent>> RegisterUserRequestAsync(RegisterRequest registerRequest);
     Task<Response<NoContent>> VerifyUserRequestAsync(VerifyUserRequestDto verifyUserRequestDto);
     Task<Response<NoContent>> ForgetPasswordRequestAsync(

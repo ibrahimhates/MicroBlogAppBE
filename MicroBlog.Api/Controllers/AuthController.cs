@@ -1,5 +1,6 @@
 using MicroBlog.Core.Abstractions.Services;
 using MicroBlog.Core.Dtos.AuthDto.Request;
+using MicroBlog.Core.Dtos.AuthDto.Response;
 using MicroBlogAppBE.Controllers.CustomControllerBase;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,15 @@ public class AuthController : CustomController
         [FromBody]LoginRequest loginRequest)
     {
         var response = await _service.LoginUserRequestAsync(loginRequest);
+
+        return CreateActionResultInstance(response);
+    }
+    
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh(
+        [FromBody]UserTokenResponse userTokenResponse)
+    {
+        var response = await _service.RefreshTokenAsync(userTokenResponse);
 
         return CreateActionResultInstance(response);
     }
@@ -75,5 +85,13 @@ public class AuthController : CustomController
         var response = await _service.VerifyUserRequestAsync(new (email, token));
         
         return CreateActionResultInstance(response);
+    }
+
+    [HttpGet("test"),Authorize]
+    public async Task<IActionResult> TestEndpoint()
+    {
+        var email = GetUserEmail();
+        
+        return Ok($"Welcome back {email}");
     }
 }

@@ -1,4 +1,5 @@
 using System.Text;
+using MicroBlog.Service.Middleware;
 using MicroBlogAppBE.Extensions;
 using MicroBlogAppBE.OptionSetup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,6 +42,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthentication();
 

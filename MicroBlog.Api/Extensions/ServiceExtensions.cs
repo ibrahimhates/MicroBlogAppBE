@@ -3,7 +3,6 @@ using MicroBlog.Core.Abstractions.EmailService;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
 using MicroBlog.Core.Abstractions.Services;
-using MicroBlog.Core.Entities;
 using MicroBlog.Core.Hash;
 using MicroBlog.Repository.Concretes;
 using MicroBlog.Repository.Context;
@@ -14,11 +13,7 @@ using MicroBlog.Service.Concretes.Jwt;
 using MicroBlog.Service.Mapping;
 using MicroBlogAppBE.OptionSetup;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MicroBlogAppBE.Extensions;
@@ -77,6 +72,7 @@ public static class ServiceExtensions
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
+        services.AddScoped<IUserTokenRepository, UserTokenRepository>();
     }
 
     public static void ConfigureServices(this IServiceCollection services)
