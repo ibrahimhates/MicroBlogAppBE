@@ -20,4 +20,3 @@ Projede kullanilan araclar ve aciklamalari
 - [Middleware](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0) - Aciklama
 - [Nlog](https://nlog-project.org/) - Aciklama
 - [Git](https://git-scm.com/) - Aciklama
-- 
