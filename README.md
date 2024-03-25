@@ -18,5 +18,5 @@ Projede kullanilan araclar ve aciklamalari
 - [UnitofWork](https://learn.microsoft.com/en-us/aspnet/mvc/overview/older-versions/getting-started-with-ef-5-using-mvc-4/implementing-the-repository-and-unit-of-work-patterns-in-an-asp-net-mvc-application) - Unit of Work deseni, bir işlem boyunca bir veya daha fazla veritabanı işlemini gruplama ve yönetme yöntemidir. 
 - [Jwt - Json Web Token](https://jwt.io/introduction) - Kullanıcı kimlik doğrulaması ve yetkilendirme için kullanılan bir açık standarttır.
 - [Middleware](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0) - Bir HTTP isteği ile bir HTTP yanıtı arasında çalışan, ASP.NET Core uygulamalarında istekleri işlemek için kullanılan bileşenlerdir.
-- [Nlog](https://nlog-project.org/) - .NET platformunda kullanılan açık kaynaklı bir loglama kütüphanesidir.
+- [Serilog](https://serilog.net/) - .NET platformunda kullanılan bir günlükleme (logging) kütüphanesidir.
 - [Git](https://git-scm.com/) - Dağıtık bir sürüm kontrol sistemi ve kaynak kod yönetim sistemidir.
