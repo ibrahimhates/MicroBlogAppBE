@@ -146,3 +146,15 @@ C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\n
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\FluentValidation.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\appsettings.EmailSettings.json
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\appsettings.JwtSettings.json
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\appsettings.Production.json
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.AspNetCore.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Extensions.Hosting.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Extensions.Logging.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Formatting.Compact.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Settings.Configuration.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Sinks.Console.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Sinks.Debug.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Sinks.File.dll

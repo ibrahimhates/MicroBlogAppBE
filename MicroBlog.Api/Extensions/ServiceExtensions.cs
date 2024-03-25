@@ -31,11 +31,37 @@ public static class ServiceExtensions
         services.AddSwaggerGen();
         services.ConfigureOptions<SwaggerGenOptionsSetup>();
     }
-    public static void ConfigureJwtSetup(this IServiceCollection services,IConfiguration configuration)
+
+    public static void ConfigureCorsPolicyDevelopment(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("MicroBlogAppCorsPolicy", config =>
+                config.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+        });
+    }
+
+    public static void ConfigureCorsPolicyAnyEnvironment(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("MicroBlogAppCorsPolicy",
+                config =>
+                {
+                    config.AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .WithOrigins("https://localhost:3000", "http://localhost:3000");
+                });
+        });
+    }
+
+    public static void ConfigureJwtSetup(this IServiceCollection services, IConfiguration configuration)
     {
         //services.ConfigureOptions<JwtBearerOptionsSetup>();
         var _jwtOptions = configuration.GetSection("Jwt");
-        
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
@@ -51,23 +77,23 @@ public static class ServiceExtensions
                         Encoding.UTF8.GetBytes(_jwtOptions["SecretKey"]))
                 };
             });
-        
+
         services.ConfigureOptions<JwtOptionsSetup>();
         services.AddScoped<IJwtProvider, JwtProvider>();
     }
-    
+
     public static void ConfigureEmailServiceSetup(this IServiceCollection services)
     {
-        services.AddSingleton<IHttpContextAccessor,HttpContextAccessor>();
-        services.AddTransient<IEMailSender,EMailSender>();
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddTransient<IEMailSender, EMailSender>();
         services.ConfigureOptions<EmailOptionsSetup>();
     }
-    
+
     public static void ConfigureAutoMapper(this IServiceCollection services)
     {
         services.AddAutoMapper(typeof(Mapper));
     }
-    
+
     public static void ConfigureRepositories(this IServiceCollection services)
     {
         services.AddScoped<IUnitOfWork, UnitOfWork>();

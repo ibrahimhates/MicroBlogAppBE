@@ -1,12 +1,33 @@
-using System.Text;
 using MicroBlog.Service.Middleware;
 using MicroBlogAppBE.Extensions;
-using MicroBlogAppBE.OptionSetup;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.EmailSettings.json");
+builder.Configuration.AddJsonFile("appsettings.JwtSettings.json");
+
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+if (environment.Equals("Development"))
+{
+    builder
+        .Configuration
+        .AddJsonFile($"appsettings.Development.json"
+            , true, true);
+    
+    builder.Services.ConfigureCorsPolicyDevelopment();
+}
+else
+{
+    builder
+        .Configuration
+        .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true);
+    builder.Services.AddLogging().AddSerilog();
+    
+    builder.Services.ConfigureCorsPolicyAnyEnvironment();
+}
+
 
 // Controller configure added
 builder.Services.AddControllers();
@@ -41,6 +62,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    // o =>
+    // {
+    //     o.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+    // }
 }
 
 app.UseMiddleware<JwtMiddleware>();
