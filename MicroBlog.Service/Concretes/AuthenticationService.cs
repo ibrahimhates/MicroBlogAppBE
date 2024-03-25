@@ -12,14 +12,17 @@ using MicroBlog.Core.Hash;
 using MicroBlog.Core.ResponseResult;
 using MicroBlog.Core.ResponseResult.Dtos;
 using MicroBlog.Repository.UnitOfWork;
+using MicroBlog.Service.Logger;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MicroBlog.Service.Concretes;
 
 public class AuthenticationService : IAuthenticationService
 {
+    private readonly ILogger<AuthenticationService> _logger;
     private readonly IAuthenticationRepository _repository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtProvider _provider;
@@ -29,10 +32,12 @@ public class AuthenticationService : IAuthenticationService
     private readonly LinkGenerator _linkGenerator;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IUserTokenRepository _userTokenRepository;
+
     public AuthenticationService(IAuthenticationRepository repository,
         IPasswordHasher passwordHasher, IJwtProvider provider, IMapper mapper,
         IUnitOfWork unitOfWork, IEMailSender mailSender, LinkGenerator linkGenerator,
-        IHttpContextAccessor contextAccessor, IUserTokenRepository userTokenRepository)
+        IHttpContextAccessor contextAccessor, IUserTokenRepository userTokenRepository,
+        ILogger<AuthenticationService> logger)
     {
         _repository = repository;
         _passwordHasher = passwordHasher;
@@ -43,306 +48,470 @@ public class AuthenticationService : IAuthenticationService
         _linkGenerator = linkGenerator;
         _contextAccessor = contextAccessor;
         _userTokenRepository = userTokenRepository;
+        _logger = logger;
     }
 
     public async Task<Response<UserTokenResponse>> LoginUserRequestAsync(
         LoginRequest loginRequest)
     {
-        var user = await _repository.GetByEmailAsync(loginRequest.Email);
-
-        if (user is not User)
+        int statusCode = 0;
+        try
         {
+            var user = await _repository.GetByEmailAsync(loginRequest.Email);
+
+            if (user is not User)
+            {
+                statusCode = 404;
+                throw new InvalidDataException($"User could not found. ");
+            }
+
+            if (!_passwordHasher.Verify(user.PasswordHash, loginRequest.Password))
+            {
+                statusCode = 401;
+                throw new InvalidDataException($"User password does not matching. {loginRequest.Email}");
+            }
+
+            if (!user.VerifyEmail)
+            {
+                statusCode = 401;
+                throw new InvalidDataException("Pending email verification. Please verify your email address");
+            }
+
+            UserToken userToken = user.UserToken;
+            if (user.UserToken is not UserToken)
+            {
+                userToken = new();
+            }
+
+            // Kullacini hesabi pasif almissa tekrar giriste aktif olarak guncelleniyor 
+            if (!user.IsActive) user.IsActive = true;
+
+            var userTokenResponse = CreateToken(user, userToken, true);
+
+            userToken.AccessToken = userTokenResponse.AccessToken;
+            userToken.RefreshToken = userTokenResponse.RefreshToken;
+
+            _repository.Update(user);
+            _userTokenRepository.Update(userToken);
+            await _unitOfWork.SaveAsync();
+
             return Response<UserTokenResponse>
-                .Fail($"User could not found", 404);
+                .Success(userTokenResponse, 200);
         }
-
-        if (!_passwordHasher.Verify(user.PasswordHash, loginRequest.Password))
+        catch (InvalidDataException err)
         {
+            _logger.SendWarning(err.Message);
             return Response<UserTokenResponse>
-                .Fail($"User password does not matching", 401);
+                .Fail(err.Message, statusCode);
         }
-
-        if (!user.VerifyEmail)
+        catch (Exception err)
         {
+            _logger.SendError(err);
             return Response<UserTokenResponse>
-                .Fail($"Pending email verification. Please verify your email address", 401);
+                .Fail("Something went wrong.", 500);
         }
-
-        UserToken userToken = user.UserToken;
-        if (user.UserToken is not UserToken)
-        {
-            userToken =  new();
-        }
-        
-        // Kullacini hesabi pasif almissa tekrar giriste aktif olarak guncelleniyor 
-        if (!user.IsActive) user.IsActive = true;
-
-        var userTokenResponse = CreateToken(user, userToken,true);
-        
-        userToken.AccessToken = userTokenResponse.AccessToken;
-        userToken.RefreshToken = userTokenResponse.RefreshToken;
-
-        _repository.Update(user);
-        _userTokenRepository.Update(userToken);
-        await _unitOfWork.SaveAsync();
-
-        return Response<UserTokenResponse>
-            .Success(userTokenResponse, 200);
     }
 
     public async Task<Response<UserTokenResponse>> RefreshTokenAsync(UserTokenResponse refreshRequestToken)
     {
-        var (result, userId) = await _provider.VerifyTokenAsync(refreshRequestToken.AccessToken);
+        int statusCode = 0;
+        try
+        {
+            statusCode = 200;
+            var (result, userId) = await _provider.VerifyTokenAsync(refreshRequestToken.AccessToken);
 
-        if (!result)
+            if (!result)
+            {
+                statusCode = 400;
+                throw new InvalidDataException("Invalid Token.");
+            }
+
+            var user = await _repository
+                .GetByCondition(x => x.Id == new Guid(userId), false)
+                .Include(x => x.UserToken)
+                .FirstOrDefaultAsync();
+
+            if (user is not User)
+            {
+                statusCode = 404;
+                throw new InvalidDataException("User could not found");
+            }
+
+            if (user.UserToken is not UserToken
+                || string.IsNullOrEmpty(user.UserToken.RefreshToken)
+                || !user.UserToken.RefreshToken.Equals(refreshRequestToken.RefreshToken)
+                || user.UserToken.RefreshTokenExpires < DateTime.Now)
+            {
+                statusCode = 400;
+                throw new InvalidDataException("Invalid Token.");
+            }
+
+            UserToken userToken = user.UserToken;
+
+            var tokens = CreateToken(user, userToken, false);
+
+            userToken.RefreshToken = tokens.RefreshToken;
+            userToken.AccessToken = tokens.AccessToken;
+
+            _repository.Update(user);
+            _userTokenRepository.Update(userToken);
+            await _unitOfWork.SaveAsync();
+
             return Response<UserTokenResponse>
-                .Fail("Invalid Token", 400);
-
-        var user = await _repository
-            .GetByCondition(x => x.Id == new Guid(userId), false)
-            .Include(x => x.UserToken)
-            .FirstOrDefaultAsync();
-
-        if (user is not User)
+                .Success(tokens, 200);
+        }
+        catch (InvalidDataException err)
+        {
+            _logger.SendWarning(err.Message);
+            return Response<UserTokenResponse>.Fail(err.Message, statusCode);
+        }
+        catch (Exception err)
+        {
+            _logger.SendError(err);
             return Response<UserTokenResponse>
-                .Fail("User could not found", 404);
-        
-        if(user.UserToken is not UserToken 
-           || string.IsNullOrEmpty(user.UserToken.RefreshToken) 
-           || !user.UserToken.RefreshToken.Equals(refreshRequestToken.RefreshToken)
-           || user.UserToken.RefreshTokenExpires < DateTime.Now)
-            return Response<UserTokenResponse>
-                .Fail("Invalid Token", 404);
-
-        UserToken userToken = user.UserToken;
-        
-        var tokens = CreateToken(user,userToken, false);
-        
-        userToken.RefreshToken = tokens.RefreshToken;
-        userToken.AccessToken= tokens.AccessToken;
-        
-        _repository.Update(user);
-        _userTokenRepository.Update(userToken);
-        await _unitOfWork.SaveAsync();
-        
-        return Response<UserTokenResponse>
-            .Success(tokens, 200);
+                .Fail("Something went wrong.", 500);
+        }
     }
 
     public async Task<Response<NoContent>> RegisterUserRequestAsync(
         RegisterRequest registerRequest)
     {
-        if (!registerRequest.Password.Equals(registerRequest.PasswordConfirm))
-        {
-            return Response<NoContent>
-                .Fail($"User password and passwordConfirm does not matching", 400);
-        }
-
-        var user = _mapper.Map<User>(registerRequest);
-        user.PasswordHash = _passwordHasher.Hash(registerRequest.Password);
-
-
-        var emailToken = await _repository.GenerateVerifyAndResetTokenAsync();
-        var confirmationLink = GenerateLink(user.Email, emailToken);
-
-        user.EmailVerifyToken = emailToken;
-        await _repository.CreateAsync(user);
-
-        await _unitOfWork.SaveAsync();
-
         try
         {
-            await _mailSender.SendMailVerifyAsync(user.Email, confirmationLink);
-        }
-        catch (Exception e)
-        {
-            return Response<NoContent>
-                .Fail("An error was encountered while sending the verification mail." +
-                      " Please try mail verification manually again later.",
-                    500);
-        }
+            if (!registerRequest.Password.Equals(registerRequest.PasswordConfirm))
+            {
+                throw new InvalidDataException("User password and passwordConfirm does not matching");
+            }
 
-        return Response<NoContent>
-            .Success($"User created successfully & Email sent to {user.Email}", 202);
+            var user = _mapper.Map<User>(registerRequest);
+            user.PasswordHash = _passwordHasher.Hash(registerRequest.Password);
+
+
+            var emailToken = await _repository.GenerateVerifyAndResetTokenAsync();
+            var confirmationLink = GenerateLink(user.Email, emailToken);
+
+            user.EmailVerifyToken = emailToken;
+            await _repository.CreateAsync(user);
+
+            await _unitOfWork.SaveAsync();
+
+            try
+            {
+                await _mailSender.SendMailVerifyAsync(user.Email, confirmationLink);
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException("An error was encountered while sending the verification mail." +
+                                                    " Please try mail verification manually again later.");
+            }
+
+            return Response<NoContent>
+                .Success($"User created successfully & Email sent to {user.Email}", 202);
+        }
+        catch (InvalidDataException err)
+        {
+            _logger.SendWarning(err.Message);
+            return Response<NoContent>
+                .Fail(err.Message, 400);
+        }
+        catch (InvalidOperationException err)
+        {
+            _logger.SendError(err);
+            return Response<NoContent>
+                .Fail(err.Message, 500);
+        }
+        catch (Exception err)
+        {
+            _logger.SendError(err);
+            return Response<NoContent>
+                .Fail("Something went wrong.", 500);
+        }
     }
 
     public async Task<Response<NoContent>> VerifyUserRequestAsync(VerifyUserRequestDto verifyUserRequestDto)
     {
-        var user = await _repository.GetByEmailAsync(verifyUserRequestDto.email);
-
-        if (user is not User)
+        int statusCode = 200;
+        try
         {
-            return Response<NoContent>
-                .Fail($"User could not found", 404);
-        }
+            var user = await _repository.GetByEmailAsync(verifyUserRequestDto.email);
 
-        if (user.VerifyEmail)
+            if (user is not User)
+            {
+                statusCode = 404;
+                throw new InvalidDataException($"User could not found");
+            }
+
+            if (user.VerifyEmail)
+            {
+                statusCode = 400;
+                throw new InvalidDataException($"User is already verify");
+            }
+
+            if (string.IsNullOrEmpty(user.EmailVerifyToken) 
+                || !user.EmailVerifyToken.Equals(verifyUserRequestDto.token))
+            {
+                statusCode = 400;
+                throw new InvalidDataException($"Invalid token");
+            } 
+
+            user.VerifyEmail = true;
+            _repository.Update(user);
+
+            await _unitOfWork.SaveAsync();
+
+            return Response<NoContent>
+                .Success($"User has been successfully verified", 200);
+        }
+        catch (InvalidDataException err)
         {
+            _logger.SendWarning(err.Message);
             return Response<NoContent>
-                .Fail($"User is already verify", 400);
+                .Fail(err.Message, statusCode);
         }
-
-        if (string.IsNullOrEmpty(user.EmailVerifyToken))
+        catch (Exception err)
         {
+            _logger.SendError(err);
             return Response<NoContent>
-                .Fail($"Invalid token", 400);
+                .Fail("Something went wrong.", 500);
         }
-
-        if (!user.EmailVerifyToken.Equals(verifyUserRequestDto.token))
-            return Response<NoContent>
-                .Fail($"Invalid token", 400);
-
-        user.VerifyEmail = true;
-        _repository.Update(user);
-
-        await _unitOfWork.SaveAsync();
-
-        return Response<NoContent>
-            .Success($"User has been successfully verified", 200);
     }
 
     public async Task<Response<NoContent>> ForgetPasswordRequestAsync(
         ForgetPasswordRequest forgetPasswordRequest)
     {
-        User? user;
-        if (forgetPasswordRequest.RequestType is ForgetPasswordRequestType.EMAIL)
-            user = await _repository.GetByEmailAsync(forgetPasswordRequest.ResetUserInfo);
-        else
-            user = await _repository.GetByUserNameAsync(forgetPasswordRequest.ResetUserInfo);
-
-        if (user is not User)
-            return Response<NoContent>
-                .Fail($"User could not found", 404);
-
-        if (user.PasswordResetCodeExpr > DateTime.Now)
-            return Response<NoContent>
-                .Fail($"You cannot receive a new reset code yet", 400);
-
-        var resetCode = GenerateResetCode();
-        user.PasswordResetCode = resetCode;
-        user.PasswordResetCodeExpr = DateTime.Now.AddMinutes(3);
-
-        _repository.Update(user);
-        await _unitOfWork.SaveAsync();
-
+        int statusCode = 200;
         try
         {
-            await _mailSender.SendForgetPasswordAsync(user.Email, resetCode);
-        }
-        catch (Exception e)
-        {
-            return Response<NoContent>
-                .Fail("An error was encountered while sending the verification mail." +
-                      " Please try again later.",
-                    500);
-        }
+            User? user;
+            if (forgetPasswordRequest.RequestType is ForgetPasswordRequestType.EMAIL)
+                user = await _repository.GetByEmailAsync(forgetPasswordRequest.ResetUserInfo);
+            else
+                user = await _repository.GetByUserNameAsync(forgetPasswordRequest.ResetUserInfo);
 
-        return Response<NoContent>
-            .Success($"The verification code was successfully sent to the following email {user.Email}"
-                , 200);
+            if (user is not User)
+            {
+                statusCode = 404;
+                throw new InvalidDataException($"User could not found");
+            }
+
+            if (user.PasswordResetCodeExpr > DateTime.Now)
+            {
+                statusCode = 400;
+                throw new InvalidDataException("You cannot receive a new reset code yet");
+            }
+
+            var resetCode = GenerateResetCode();
+            user.PasswordResetCode = resetCode;
+            user.PasswordResetCodeExpr = DateTime.Now.AddMinutes(3);
+
+            _repository.Update(user);
+            await _unitOfWork.SaveAsync();
+
+            try
+            {
+                await _mailSender.SendForgetPasswordAsync(user.Email, resetCode);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    "An error was encountered while sending the verification mail." +
+                                                    " Please try again later.");
+            }
+
+            return Response<NoContent>
+                .Success($"The verification code was successfully sent to the following email {user.Email}"
+                    , 200);
+        }
+        catch (InvalidDataException err)
+        {
+            _logger.SendWarning(err.Message);
+            return Response<NoContent>
+                .Fail(err.Message, statusCode);
+        }
+        catch (InvalidOperationException err)
+        {
+            _logger.SendError(err);
+            return Response<NoContent>
+                .Fail(err.Message, 500);
+        }
+        catch (Exception err)
+        {
+            _logger.SendError(err);
+            return Response<NoContent>
+                .Fail("Something went wrong.", 500);
+        }
     }
 
     public async Task<Response<UserTokenForgetPasswordResponse>> ForgetPasswordRequestAsync(
         ResetPasswordRequest resetPasswordRequest)
     {
-        var user = await _repository.GetByEmailAsync(resetPasswordRequest.email);
-        if (user is not User)
-            return Response<UserTokenForgetPasswordResponse>
-                .Fail("User could not found", 404);
-
-        if (string.IsNullOrEmpty(user.PasswordResetCode))
+        int statusCode = 200;
+        try
         {
-            return Response<UserTokenForgetPasswordResponse>
-                .Fail("Password reset code not found.", 404);
-        }
+            var user = await _repository.GetByEmailAsync(resetPasswordRequest.email);
+            if (user is not User)
+            {
+                statusCode = 404;
+                throw new InvalidDataException("User could not found.");
+            }
 
-        if (user.PasswordResetCodeExpr < DateTime.Now)
+            if (string.IsNullOrEmpty(user.PasswordResetCode))
+            {
+                statusCode = 404;
+                throw new InvalidDataException("Password reset code not found.");
+            }
+
+            if (user.PasswordResetCodeExpr < DateTime.Now)
+            {
+                statusCode = 400;
+                throw new InvalidDataException("The verification code has expired. Please request new code.");
+            }
+
+            if (!user.PasswordResetCode.Equals(resetPasswordRequest.verifyCode))
+            {
+                statusCode = 400;
+                throw new InvalidDataException("The verification code is invalid. Please request a new code.");
+            }
+
+            var token = await _repository.GenerateVerifyAndResetTokenAsync();
+
+            user.PasswordResetToken = token;
+            user.PasswordResetTokenExpr = DateTime.Now.AddHours(3);
+            user.PasswordResetCodeExpr = DateTime.Now;
+            user.PasswordResetCode = string.Empty;
+
+            _repository.Update(user);
+            await _unitOfWork.SaveAsync();
+
+            return Response<UserTokenForgetPasswordResponse>
+                .Success(new UserTokenForgetPasswordResponse(token), 200);
+        }
+        catch (InvalidDataException err)
         {
+            _logger.SendWarning(err.Message);
             return Response<UserTokenForgetPasswordResponse>
-                .Fail("The verification code has expired. Please request new code", 400);
+                .Fail(err.Message, statusCode);
         }
-
-        if (!user.PasswordResetCode.Equals(resetPasswordRequest.verifyCode))
+        catch (Exception err)
         {
+            _logger.SendError(err);
             return Response<UserTokenForgetPasswordResponse>
-                .Fail("The verification code is invalid. Please request a new code.", 400);
+                .Fail("Something went wrong.", 500);
         }
-
-        var token = await _repository.GenerateVerifyAndResetTokenAsync();
-        user.PasswordResetToken = token;
-        user.PasswordResetTokenExpr = DateTime.Now.AddHours(3);
-        user.PasswordResetCodeExpr = DateTime.Now;
-        user.PasswordResetCode = string.Empty;
-
-        _repository.Update(user);
-        await _unitOfWork.SaveAsync();
-
-        return Response<UserTokenForgetPasswordResponse>
-            .Success(new UserTokenForgetPasswordResponse(token), 404);
     }
 
     public async Task<Response<NoContent>> ResetPasswordRequest(ChangePasswordWithResetRequest resetRequest)
     {
-        var user = await _repository.GetByEmailAsync(resetRequest.email);
+        int statusCode = 200;
+        try
+        {
+            var user = await _repository.GetByEmailAsync(resetRequest.email);
 
-        if (user is not User)
+            if (user is not User)
+            {
+                statusCode = 404;   
+                throw new InvalidDataException("User could not found");
+            }
+
+            if (string.IsNullOrEmpty(user.PasswordResetToken)
+                || user.PasswordResetTokenExpr < DateTime.Now
+                || !user.PasswordResetToken.Equals(resetRequest.token))
+            {
+                statusCode = 400;
+                throw new InvalidDataException("Invalid token");
+            }
+
+            if (!resetRequest.newPassword.Equals(resetRequest.newPasswordConfirm))
+            {
+                statusCode = 400;
+                throw new InvalidDataException("User new password and new passwordConfirm does not matching");
+            }
+
+            if (_passwordHasher.Verify(user.PasswordHash, resetRequest.newPassword))
+            {
+                statusCode = 400;
+                throw new InvalidDataException("The user's old password cannot be the same as the new password");
+            }
+            
+            user.PasswordResetCodeExpr = DateTime.Now;
+            user.PasswordResetToken = string.Empty;
+            user.PasswordHash = _passwordHasher.Hash(resetRequest.newPassword);
+
+            _repository.Update(user);
+            await _unitOfWork.SaveAsync();
+
             return Response<NoContent>
-                .Fail("User could not found", 404);
-
-        if (string.IsNullOrEmpty(user.PasswordResetToken)
-            || user.PasswordResetTokenExpr < DateTime.Now
-            || !user.PasswordResetToken.Equals(resetRequest.token))
+                .Success($"User's password has been successfully changed", 200);
+        }
+        catch (InvalidDataException err)
+        {
+            _logger.SendWarning(err.Message);
             return Response<NoContent>
-                .Fail("Invalid token", 400);
-
-        if (!resetRequest.newPassword.Equals(resetRequest.newPasswordConfirm))
+                .Fail(err.Message, statusCode);
+        }
+        catch (Exception err)
+        {
+            _logger.SendError(err);
             return Response<NoContent>
-                .Fail($"User new password and new passwordConfirm does not matching", 400);
-
-        if (_passwordHasher.Verify(user.PasswordHash, resetRequest.newPassword))
-            return Response<NoContent>
-                .Fail($"The user's old password cannot be the same as the new password", 400);
-
-        user.PasswordResetCodeExpr = DateTime.Now;
-        user.PasswordResetToken = string.Empty;
-        user.PasswordHash = _passwordHasher.Hash(resetRequest.newPassword);
-
-        _repository.Update(user);
-        await _unitOfWork.SaveAsync();
-
-        return Response<NoContent>
-            .Success($"User's password has been successfully changed", 200);
+                .Fail("Something went wrong.", 500);
+        }
     }
 
     public async Task<Response<NoContent>> ChangePasswordRequestAsync(
         string userId, ChangePasswordRequest chgPswRequest)
     {
-        var user = await _repository.GetByIdAsync(new Guid(userId));
+        int statusCode = 200;
+        try
+        {
+            var user = await _repository.GetByIdAsync(new Guid(userId));
 
-        if (user is not User)
+            if (user is not User)
+            {
+                statusCode = 404;
+                throw new InvalidDataException($"User could not found");
+            }
+
+            if (!_passwordHasher.Verify(user.PasswordHash, chgPswRequest.CurrentPassword))
+            {
+                statusCode = 400;
+                throw new InvalidDataException($"User's old password does not match");
+            }
+
+            if (!chgPswRequest.NewPassword.Equals(chgPswRequest.ConfirmNewPassword))
+            {
+                statusCode = 400;
+                throw new InvalidDataException($"User password and passwordConfirm does not matching");
+            }
+
+            if (_passwordHasher.Verify(user.PasswordHash, chgPswRequest.NewPassword))
+            {
+                statusCode = 400;
+                throw new InvalidDataException($"The user's old password cannot be the same as the new password");
+            }
+
+            user.PasswordHash = _passwordHasher.Hash(chgPswRequest.NewPassword);
+            
+            _repository.Update(user);
+            await _unitOfWork.SaveAsync();
+
             return Response<NoContent>
-                .Fail($"User could not found", 404);
-
-        if (!_passwordHasher.Verify(user.PasswordHash, chgPswRequest.CurrentPassword))
+                .Success($"User's password has been successfully changed", 200);
+        }
+        catch (InvalidDataException err)
+        {
+            _logger.SendWarning(err.Message);
             return Response<NoContent>
-                .Fail($"User's old password does not match", 400);
-
-        if (!chgPswRequest.NewPassword.Equals(chgPswRequest.ConfirmNewPassword))
+                .Fail(err.Message, statusCode);
+        }
+        catch (Exception err)
+        {
+            _logger.SendError(err);
             return Response<NoContent>
-                .Fail($"User password and passwordConfirm does not matching", 400);
-
-        if (_passwordHasher.Verify(user.PasswordHash, chgPswRequest.NewPassword))
-            return Response<NoContent>
-                .Fail($"The user's old password cannot be the same as the new password", 400);
-
-        user.PasswordHash = _passwordHasher.Hash(chgPswRequest.NewPassword);
-        await _unitOfWork.SaveAsync();
-
-        return Response<NoContent>
-            .Success($"User's password has been successfully changed", 200);
+                .Fail("Something went wrong.", 500);
+        }
     }
 
-    private UserTokenResponse CreateToken(User user,UserToken userToken, bool populateExp)
+    private UserTokenResponse CreateToken(User user, UserToken userToken, bool populateExp)
     {
         var accessToken = _provider.Generate(user);
         var refreshToken = GenerateRefreshToken();
