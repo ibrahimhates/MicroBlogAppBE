@@ -1,6 +1,5 @@
 using System.Text;
 using MicroBlog.Core.Abstractions.EmailSendProcedure;
-using MicroBlog.Core.Abstractions.EmailService;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
 using MicroBlog.Core.Abstractions.Services;
@@ -10,7 +9,6 @@ using MicroBlog.Repository.Context;
 using MicroBlog.Repository.UnitOfWork;
 using MicroBlog.Service.Concretes;
 using MicroBlog.Service.Concretes.EmailSendProcedure;
-using MicroBlog.Service.Concretes.EMailService;
 using MicroBlog.Service.Concretes.Jwt;
 using MicroBlog.Service.Mapping;
 using MicroBlogAppBE.OptionSetup;

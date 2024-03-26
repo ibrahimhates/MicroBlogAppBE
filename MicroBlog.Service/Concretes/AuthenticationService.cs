@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using AutoMapper;
 using MicroBlog.Core.Abstractions.EmailSendProcedure;
-using MicroBlog.Core.Abstractions.EmailService;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
 using MicroBlog.Core.Abstractions.Services;

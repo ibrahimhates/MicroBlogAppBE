@@ -24,8 +24,8 @@ public class Worker : BackgroundService
         var factory = new ConnectionFactory()
         {
             HostName = "localhost",
-            UserName = "guest",
-            Password = "guest",
+            UserName = "microblog_user",
+            Password = "Pass0word!?",
             VirtualHost = "/"
         };
 

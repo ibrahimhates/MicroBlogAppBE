@@ -1,10 +1,25 @@
-﻿services:
+﻿version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"  # RabbitMQ iletişim portu
+      - "15672:15672"  # RabbitMQ yönetim arayüzü portu
+    environment:
+      - RABBITMQ_DEFAULT_USER=microblog_user  # RabbitMQ yönetici kullanıcı adı
+      - RABBITMQ_DEFAULT_PASS=Pass0word!?  # RabbitMQ yönetici şifresi
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq  # RabbitMQ veri depolama alanı
+
   microblog.api:
     image: microblog.api
     build:
       context: .
       dockerfile: MicroBlog.Api/Dockerfile
-      
+    ports:
+      - "8080:80"
+
   emailservice:
     image: emailservice
     build:

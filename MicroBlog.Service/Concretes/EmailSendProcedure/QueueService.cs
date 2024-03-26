@@ -13,8 +13,8 @@ public class QueueService : IQueueService
         var factory = new ConnectionFactory()
         {
             HostName = "localhost",
-            UserName = "guest",
-            Password = "guest",
+            UserName = "microblog_user",
+            Password = "Pass0word!?",
             VirtualHost = "/"
         };
         var conn = await factory.CreateConnectionAsync();

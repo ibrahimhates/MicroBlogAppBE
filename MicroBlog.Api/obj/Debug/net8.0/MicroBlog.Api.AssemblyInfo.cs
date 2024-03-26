@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MicroBlog.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d98a214d4fb383f1062835555808e217fb85d498")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ba5e1017f57bab66b007f0922581be24538e778")]
 [assembly: System.Reflection.AssemblyProductAttribute("MicroBlog.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MicroBlog.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
