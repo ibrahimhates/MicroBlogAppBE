@@ -1,0 +1,13 @@
+﻿services:
+  microblog.api:
+    image: microblog.api
+    build:
+      context: .
+      dockerfile: MicroBlog.Api/Dockerfile
+      
+  emailservice:
+    image: emailservice
+    build:
+      context: .
+      dockerfile: EmailSenderService/Dockerfile
+      
