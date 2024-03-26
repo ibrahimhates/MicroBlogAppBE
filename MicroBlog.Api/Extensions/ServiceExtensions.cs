@@ -1,4 +1,5 @@
 using System.Text;
+using MicroBlog.Core.Abstractions.EmailSendProcedure;
 using MicroBlog.Core.Abstractions.EmailService;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
@@ -8,6 +9,7 @@ using MicroBlog.Repository.Concretes;
 using MicroBlog.Repository.Context;
 using MicroBlog.Repository.UnitOfWork;
 using MicroBlog.Service.Concretes;
+using MicroBlog.Service.Concretes.EmailSendProcedure;
 using MicroBlog.Service.Concretes.EMailService;
 using MicroBlog.Service.Concretes.Jwt;
 using MicroBlog.Service.Mapping;
@@ -85,8 +87,7 @@ public static class ServiceExtensions
     public static void ConfigureEmailServiceSetup(this IServiceCollection services)
     {
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-        services.AddTransient<IEMailSender, EMailSender>();
-        services.ConfigureOptions<EmailOptionsSetup>();
+        services.AddScoped<IQueueService, QueueService>();
     }
 
     public static void ConfigureAutoMapper(this IServiceCollection services)

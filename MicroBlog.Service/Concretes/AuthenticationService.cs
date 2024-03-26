@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using AutoMapper;
+using MicroBlog.Core.Abstractions.EmailSendProcedure;
 using MicroBlog.Core.Abstractions.EmailService;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
@@ -28,27 +29,29 @@ public class AuthenticationService : IAuthenticationService
     private readonly IJwtProvider _provider;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IEMailSender _mailSender;
     private readonly LinkGenerator _linkGenerator;
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IUserTokenRepository _userTokenRepository;
+    private readonly IQueueService _queueService;
 
     public AuthenticationService(IAuthenticationRepository repository,
         IPasswordHasher passwordHasher, IJwtProvider provider, IMapper mapper,
-        IUnitOfWork unitOfWork, IEMailSender mailSender, LinkGenerator linkGenerator,
-        IHttpContextAccessor contextAccessor, IUserTokenRepository userTokenRepository,
-        ILogger<AuthenticationService> logger)
+        IUnitOfWork unitOfWork, LinkGenerator linkGenerator,
+        IHttpContextAccessor contextAccessor,
+        IUserTokenRepository userTokenRepository,
+        ILogger<AuthenticationService> logger,
+        IQueueService queueService)
     {
         _repository = repository;
         _passwordHasher = passwordHasher;
         _provider = provider;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
-        _mailSender = mailSender;
         _linkGenerator = linkGenerator;
         _contextAccessor = contextAccessor;
         _userTokenRepository = userTokenRepository;
         _logger = logger;
+        _queueService = queueService;
     }
 
     public async Task<Response<UserTokenResponse>> LoginUserRequestAsync(
@@ -197,7 +200,11 @@ public class AuthenticationService : IAuthenticationService
 
             try
             {
-                await _mailSender.SendMailVerifyAsync(user.Email, confirmationLink);
+                await _queueService.PublishAsync(new(
+                    To: user.Email,
+                    Body: confirmationLink,
+                    EmailSendType: EmailSendType.VerifyEmail
+                ));
             }
             catch (Exception)
             {
@@ -247,12 +254,12 @@ public class AuthenticationService : IAuthenticationService
                 throw new InvalidDataException($"User is already verify");
             }
 
-            if (string.IsNullOrEmpty(user.EmailVerifyToken) 
+            if (string.IsNullOrEmpty(user.EmailVerifyToken)
                 || !user.EmailVerifyToken.Equals(verifyUserRequestDto.token))
             {
                 statusCode = 400;
                 throw new InvalidDataException($"Invalid token");
-            } 
+            }
 
             user.VerifyEmail = true;
             _repository.Update(user);
@@ -309,13 +316,17 @@ public class AuthenticationService : IAuthenticationService
 
             try
             {
-                await _mailSender.SendForgetPasswordAsync(user.Email, resetCode);
+                await _queueService.PublishAsync(new(
+                    To: user.Email,
+                    Body: resetCode,
+                    EmailSendType: EmailSendType.ResetPassword
+                ));
             }
             catch (Exception e)
             {
                 throw new InvalidOperationException(
                     "An error was encountered while sending the verification mail." +
-                                                    " Please try again later.");
+                    " Please try again later.");
             }
 
             return Response<NoContent>
@@ -409,7 +420,7 @@ public class AuthenticationService : IAuthenticationService
 
             if (user is not User)
             {
-                statusCode = 404;   
+                statusCode = 404;
                 throw new InvalidDataException("User could not found");
             }
 
@@ -432,7 +443,7 @@ public class AuthenticationService : IAuthenticationService
                 statusCode = 400;
                 throw new InvalidDataException("The user's old password cannot be the same as the new password");
             }
-            
+
             user.PasswordResetCodeExpr = DateTime.Now;
             user.PasswordResetToken = string.Empty;
             user.PasswordHash = _passwordHasher.Hash(resetRequest.newPassword);
@@ -490,7 +501,7 @@ public class AuthenticationService : IAuthenticationService
             }
 
             user.PasswordHash = _passwordHasher.Hash(chgPswRequest.NewPassword);
-            
+
             _repository.Update(user);
             await _unitOfWork.SaveAsync();
 

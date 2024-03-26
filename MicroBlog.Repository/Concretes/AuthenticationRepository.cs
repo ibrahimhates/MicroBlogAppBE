@@ -33,7 +33,7 @@ public class AuthenticationRepository :  GenericRepository<User>, IAuthenticatio
 
     public async Task<string> GenerateVerifyAndResetTokenAsync()
     {
-        byte[] tokenBytes = GenerateRandomBytes(64);
+        byte[] tokenBytes = GenerateRandomBytes(32);
         
         string token = Convert.ToBase64String(tokenBytes);
         

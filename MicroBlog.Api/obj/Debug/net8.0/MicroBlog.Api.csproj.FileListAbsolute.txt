@@ -158,3 +158,4 @@ C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\n
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Sinks.Console.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Sinks.Debug.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.Sinks.File.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\RabbitMQ.Client.dll
