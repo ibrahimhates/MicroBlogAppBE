@@ -12,6 +12,7 @@ public class MicroBlogDbContext : DbContext
     
     DbSet<User> Users { get; set; }
     DbSet<UserToken> UserTokens { get; set; }
+    DbSet<Follower> Followers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

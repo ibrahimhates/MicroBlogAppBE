@@ -25,4 +25,5 @@ public sealed class User : BaseEntity, IEntity<Guid>
     public string PasswordHash { get; set; }
     public bool IsActive { get; set; }
     public UserToken UserToken { get; set; }
+    public ICollection<Follower> Followers { get; set; }
 }

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json;
 using AutoMapper;
 using MicroBlog.Core.Abstractions.EmailSendProcedure;
 using MicroBlog.Core.Abstractions.Jwt;
@@ -83,6 +84,7 @@ public class AuthenticationService : IAuthenticationService
             if (user.UserToken is not UserToken)
             {
                 userToken = new();
+                userToken.UserId = user.Id;
             }
 
             // Kullacini hesabi pasif almissa tekrar giriste aktif olarak guncelleniyor 
@@ -520,6 +522,7 @@ public class AuthenticationService : IAuthenticationService
                 .Fail("Something went wrong.", 500);
         }
     }
+    
 
     private UserTokenResponse CreateToken(User user, UserToken userToken, bool populateExp)
     {
@@ -559,4 +562,5 @@ public class AuthenticationService : IAuthenticationService
 
     private string GenerateResetCode() =>
         new Random().Next(100000, 999999).ToString();
+    
 }

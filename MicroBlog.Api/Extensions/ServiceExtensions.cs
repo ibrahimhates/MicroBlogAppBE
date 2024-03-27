@@ -103,6 +103,7 @@ public static class ServiceExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+        services.AddScoped<IFollowerRepository, FollowerRepository>();
     }
 
     public static void ConfigureServices(this IServiceCollection services)
