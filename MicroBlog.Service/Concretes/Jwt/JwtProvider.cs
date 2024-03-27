@@ -4,6 +4,7 @@ using System.Text;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
 using MicroBlog.Core.Entities;
+using MicroBlog.Core.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

@@ -1,4 +1,5 @@
 using System.Text;
+using MicroBlog.Core.Options;
 using MicroBlog.Service.Concretes.Jwt;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;

@@ -6,7 +6,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MicroBlog.Repository.Concretes.GenericRepo;
 
-public class GenericRepository<T> : IGenericRepository<T> where T : class, IEntity
+public class GenericRepository<T,TKey> : IGenericRepository<T,TKey> 
+    where TKey : struct
+    where T : class, IEntity<TKey>
 {
     private readonly MicroBlogDbContext _context;
     private readonly DbSet<T> _dbSet;
@@ -23,9 +25,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class, IEnti
     public IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression, bool trackChanges) =>
         trackChanges ? _dbSet.Where(expression).AsTracking() : _dbSet.Where(expression).AsNoTracking();
 
-    public async Task<T> GetByIdAsync(Guid id) => await _dbSet.FindAsync(id);
-
-    public async Task<T> GetByIdAsync(int id) => await _dbSet.FindAsync(id);
+    public async Task<T> GetByIdAsync(TKey id) => await _dbSet.FindAsync(id);
 
     public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression) => await _dbSet.AnyAsync(expression);
 

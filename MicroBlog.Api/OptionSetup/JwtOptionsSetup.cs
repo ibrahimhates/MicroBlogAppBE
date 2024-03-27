@@ -1,4 +1,4 @@
-using MicroBlog.Service.Concretes.Jwt;
+using MicroBlog.Core.Options;
 using Microsoft.Extensions.Options;
 
 namespace MicroBlogAppBE.OptionSetup;

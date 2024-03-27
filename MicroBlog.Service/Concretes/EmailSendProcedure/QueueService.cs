@@ -13,8 +13,8 @@ public class QueueService : IQueueService
         var factory = new ConnectionFactory()
         {
             HostName = "localhost",
-            UserName = "microblog_user",
-            Password = "Pass0word!?",
+            UserName = "guest", // todo product icin user: microblog_user
+            Password = "guest", // product icin psw: Pass0word!?
             VirtualHost = "/"
         };
         var conn = await factory.CreateConnectionAsync();

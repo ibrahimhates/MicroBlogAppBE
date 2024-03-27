@@ -3,7 +3,9 @@ using MicroBlog.Core.Entities.Base;
 
 namespace MicroBlog.Core.Repositories.GenericRepo;
 
-public interface IGenericRepository<T> where T : class, IEntity
+public interface IGenericRepository<T,TKey> 
+    where TKey : struct
+    where T : class, IEntity<TKey>
 {
     /// <summary>
     /// This method returns all available data 
@@ -43,20 +45,7 @@ public interface IGenericRepository<T> where T : class, IEntity
     /// <returns>
     /// An <see cref="Task{T}"/> that represents the input sequence.
     /// </returns>
-    Task<T> GetByIdAsync(Guid id);
-    
-    /// <summary>
-    /// This method returns a data by id
-    /// </summary>
-    /// <remarks>
-    /// id is required
-    /// </remarks>
-    /// <typeparam name="T">The type of the delegate.</typeparam>
-    /// <param name="id">A value to int</param>
-    /// <returns>
-    /// An <see cref="Task{T}"/> that represents the input sequence.
-    /// </returns>
-    Task<T> GetByIdAsync(int id);
+    Task<T> GetByIdAsync(TKey id);
 
     /// <summary>
     /// This method returns whether there is current data based on the condition

@@ -4,7 +4,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.EmailSettings.json");
 builder.Configuration.AddJsonFile("appsettings.JwtSettings.json");
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
@@ -28,7 +27,6 @@ else
     builder.Services.ConfigureCorsPolicyAnyEnvironment();
 }
 
-
 // Controller configure added
 builder.Services.AddControllers();
 
@@ -39,6 +37,9 @@ builder.Services.ConfigureSwaggerGenSetup();
 
 // Configure Sql connection string
 builder.Services.ConfigureSqlContext(builder.Configuration);
+
+// Mongo Db configure
+builder.Services.ConfigureMongoDb();
 
 // Configure AutoMapper
 builder.Services.ConfigureAutoMapper();

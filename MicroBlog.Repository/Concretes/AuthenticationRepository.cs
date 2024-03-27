@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MicroBlog.Repository.Concretes;
 
-public class AuthenticationRepository :  GenericRepository<User>, IAuthenticationRepository
+public class AuthenticationRepository :  GenericRepository<User,Guid>, IAuthenticationRepository
 {
     public AuthenticationRepository(MicroBlogDbContext context) : base(context)
     {

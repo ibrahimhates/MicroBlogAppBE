@@ -5,7 +5,7 @@ using MicroBlog.Repository.Context;
 
 namespace MicroBlog.Repository.Concretes;
 
-public class UserTokenRepository : GenericRepository<UserToken>, IUserTokenRepository
+public class UserTokenRepository : GenericRepository<UserToken,Guid>, IUserTokenRepository
 {
     public UserTokenRepository(MicroBlogDbContext context) : base(context)
     {

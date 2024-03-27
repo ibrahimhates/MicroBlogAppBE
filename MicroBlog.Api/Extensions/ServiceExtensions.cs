@@ -26,6 +26,11 @@ public static class ServiceExtensions
             options.UseSqlServer(configuration.GetConnectionString("sqlConnection"))
         );
 
+    public static void ConfigureMongoDb(this IServiceCollection services)
+    {
+        services.ConfigureOptions<MongoDbOptionsSetup>();
+    }
+    
     public static void ConfigureSwaggerGenSetup(this IServiceCollection services)
     {
         services.AddSwaggerGen();

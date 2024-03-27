@@ -2,7 +2,7 @@ using MicroBlog.Core.Entities.Base;
 
 namespace MicroBlog.Core.Entities;
 
-public class UserToken : BaseEntity,IEntity
+public class UserToken : BaseEntity,IEntity<Guid>
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }

@@ -3,7 +3,7 @@ using MicroBlog.Core.Entities.Base;
 
 namespace MicroBlog.Core.Entities;
 
-public sealed class User : BaseEntity, IEntity
+public sealed class User : BaseEntity, IEntity<Guid>
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; }

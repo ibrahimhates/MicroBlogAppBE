@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MicroBlog.Core.Entities.Base;
 
-public interface IEntity
+public interface IEntity<TKey>
+where TKey : struct
 {
-    public Guid Id { get; set; }
+    public TKey Id { get; set; }
 }

@@ -1,4 +1,4 @@
-namespace MicroBlog.Service.Concretes.Jwt;
+namespace MicroBlog.Core.Options;
 
 public class JwtOptions
 {
