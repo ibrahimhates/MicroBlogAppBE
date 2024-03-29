@@ -2,9 +2,11 @@ using System.Text;
 using MicroBlog.Core.Abstractions.EmailSendProcedure;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
+using MicroBlog.Core.Abstractions.Repositories.PswResetVerifyRepo;
 using MicroBlog.Core.Abstractions.Services;
 using MicroBlog.Core.Hash;
 using MicroBlog.Repository.Concretes;
+using MicroBlog.Repository.Concretes.PswResetVerifyRepo;
 using MicroBlog.Repository.Context;
 using MicroBlog.Repository.UnitOfWork;
 using MicroBlog.Service.Concretes;
@@ -104,6 +106,7 @@ public static class ServiceExtensions
         services.AddScoped<IAuthenticationRepository, AuthenticationRepository>();
         services.AddScoped<IUserTokenRepository, UserTokenRepository>();
         services.AddScoped<IFollowerRepository, FollowerRepository>();
+        services.AddScoped<IPswResetRepository, PswResetRepository>();
     }
 
     public static void ConfigureServices(this IServiceCollection services)

@@ -1212,6 +1212,7 @@
       "MicroBlog.Core/1.0.0": {
         "dependencies": {
           "FluentValidation.DependencyInjectionExtensions": "11.9.0",
+          "MongoDB.Driver": "2.24.0",
           "Serilog.AspNetCore": "8.0.2-dev-00336"
         },
         "runtime": {
@@ -1222,8 +1223,7 @@
         "dependencies": {
           "MicroBlog.Core": "1.0.0",
           "Microsoft.EntityFrameworkCore": "8.0.2",
-          "Microsoft.EntityFrameworkCore.SqlServer": "8.0.2",
-          "MongoDB.Driver": "2.24.0"
+          "Microsoft.EntityFrameworkCore.SqlServer": "8.0.2"
         },
         "runtime": {
           "MicroBlog.Repository.dll": {}

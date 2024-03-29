@@ -15,10 +15,6 @@ public sealed class User : BaseEntity, IEntity<Guid>
     public string Email { get; set; }
     public string? OldEmail { get; set; }
     public string? EmailVerifyToken { get; set; }
-    public string? PasswordResetCode { get; set; }
-    public DateTime? PasswordResetCodeExpr { get; set; }
-    public string? PasswordResetToken { get; set; }
-    public DateTime PasswordResetTokenExpr { get; set; }
     public bool VerifyEmail { get; set; }
     [Phone]
     public string? PhoneNumber { get; set; }

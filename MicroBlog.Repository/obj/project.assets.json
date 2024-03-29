@@ -1975,6 +1975,7 @@
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
           "FluentValidation.DependencyInjectionExtensions": "11.9.0",
+          "MongoDB.Driver": "2.24.0",
           "Serilog.AspNetCore": "8.0.2-dev-00336"
         },
         "compile": {
@@ -5257,8 +5258,7 @@
       "Microsoft.EntityFrameworkCore >= 8.0.2",
       "Microsoft.EntityFrameworkCore.Design >= 8.0.2",
       "Microsoft.EntityFrameworkCore.SqlServer >= 8.0.2",
-      "Microsoft.EntityFrameworkCore.Tools >= 8.0.2",
-      "MongoDB.Driver >= 2.24.0"
+      "Microsoft.EntityFrameworkCore.Tools >= 8.0.2"
     ]
   },
   "packageFolders": {
@@ -5321,10 +5321,6 @@
             "suppressParent": "All",
             "target": "Package",
             "version": "[8.0.2, )"
-          },
-          "MongoDB.Driver": {
-            "target": "Package",
-            "version": "[2.24.0, )"
           }
         },
         "imports": [

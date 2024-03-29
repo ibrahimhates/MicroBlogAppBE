@@ -15,4 +15,5 @@ public interface IGenericMongoDbRepository<T,TKey>
     Task CreateAsync(T document);
     Task UpdateAsync(T document);
     Task DeleteAsync(Expression<Func<T, bool>> expression);
+    Task DeleteByIdAsync(TKey id);
 }

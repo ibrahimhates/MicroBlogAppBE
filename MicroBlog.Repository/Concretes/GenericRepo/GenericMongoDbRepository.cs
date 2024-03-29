@@ -8,19 +8,18 @@ using MongoDB.Driver;
 
 namespace MicroBlog.Repository.Concretes.GenericRepo;
 
-public class GenericMongoDbRepository<T,TKey> : IGenericMongoDbRepository<T,TKey>
+public class GenericMongoDbRepository<T, TKey> : IGenericMongoDbRepository<T, TKey>
     where TKey : struct
     where T : class, IEntity<TKey>
 {
     private readonly IMongoCollection<T> _collection;
 
-    public GenericMongoDbRepository(IOptions<MongoDbOptions> options,string collectionName)
+    public GenericMongoDbRepository(IOptions<MongoDbOptions> options, string collectionName)
     {
         var mongoClient = new MongoClient(options.Value.ConnectionString);
         _collection = mongoClient
             .GetDatabase(options.Value.DatabaseName)
             .GetCollection<T>(collectionName);
-
     }
 
     public async Task<IEnumerable<T>> GetAllAsync()
@@ -54,7 +53,7 @@ public class GenericMongoDbRepository<T,TKey> : IGenericMongoDbRepository<T,TKey
         var result = await _collection
             .Find(expression)
             .AnyAsync();
-        
+
         return result;
     }
 
@@ -63,7 +62,7 @@ public class GenericMongoDbRepository<T,TKey> : IGenericMongoDbRepository<T,TKey
         await _collection.InsertOneAsync(document);
     }
 
-    public async Task UpdateAsync(T document)
+    public virtual async Task UpdateAsync(T document)
     {
         await _collection
             .ReplaceOneAsync(x => x.Id.ToString() == document.Id.ToString(), document);
@@ -72,5 +71,10 @@ public class GenericMongoDbRepository<T,TKey> : IGenericMongoDbRepository<T,TKey
     public async Task DeleteAsync(Expression<Func<T, bool>> expression)
     {
         await _collection.FindOneAndDeleteAsync(expression);
+    }
+
+    public async Task DeleteByIdAsync(TKey id)
+    {
+        await _collection.FindOneAndDeleteAsync(x => x.Id.ToString() == id.ToString());
     }
 }

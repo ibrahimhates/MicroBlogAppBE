@@ -62,6 +62,18 @@ public class Worker : BackgroundService
                         _logger.LogError($"Mail sender has a error. {err}");
                     }
                 }
+                else
+                {
+                    try
+                    {
+                        await _mailSender.SendForgetPasswordAsync(tamplate.To, tamplate.Body);
+                        _logger.LogInformation($"Email successfully sent to {tamplate.To}");
+                    }
+                    catch (Exception err)
+                    {
+                        _logger.LogError($"Mail sender has a error. {err}");
+                    }
+                }
             }
         };
 

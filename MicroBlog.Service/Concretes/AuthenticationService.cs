@@ -4,11 +4,13 @@ using AutoMapper;
 using MicroBlog.Core.Abstractions.EmailSendProcedure;
 using MicroBlog.Core.Abstractions.Jwt;
 using MicroBlog.Core.Abstractions.Repositories;
+using MicroBlog.Core.Abstractions.Repositories.PswResetVerifyRepo;
 using MicroBlog.Core.Abstractions.Services;
 using MicroBlog.Core.Behaviour;
 using MicroBlog.Core.Dtos.AuthDto.Request;
 using MicroBlog.Core.Dtos.AuthDto.Response;
 using MicroBlog.Core.Entities;
+using MicroBlog.Core.Entities.PswResetVerify;
 using MicroBlog.Core.Hash;
 using MicroBlog.Core.ResponseResult;
 using MicroBlog.Core.ResponseResult.Dtos;
@@ -33,6 +35,7 @@ public class AuthenticationService : IAuthenticationService
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly IUserTokenRepository _userTokenRepository;
     private readonly IQueueService _queueService;
+    private readonly IPswResetRepository _pswResetRepository;
 
     public AuthenticationService(IAuthenticationRepository repository,
         IPasswordHasher passwordHasher, IJwtProvider provider, IMapper mapper,
@@ -40,7 +43,7 @@ public class AuthenticationService : IAuthenticationService
         IHttpContextAccessor contextAccessor,
         IUserTokenRepository userTokenRepository,
         ILogger<AuthenticationService> logger,
-        IQueueService queueService)
+        IQueueService queueService, IPswResetRepository pswResetRepository)
     {
         _repository = repository;
         _passwordHasher = passwordHasher;
@@ -52,6 +55,7 @@ public class AuthenticationService : IAuthenticationService
         _userTokenRepository = userTokenRepository;
         _logger = logger;
         _queueService = queueService;
+        _pswResetRepository = pswResetRepository;
     }
 
     public async Task<Response<UserTokenResponse>> LoginUserRequestAsync(
@@ -290,7 +294,7 @@ public class AuthenticationService : IAuthenticationService
         int statusCode = 200;
         try
         {
-            User? user;
+            User? user; // todo user email or username get only in one method
             if (forgetPasswordRequest.RequestType is ForgetPasswordRequestType.EMAIL)
                 user = await _repository.GetByEmailAsync(forgetPasswordRequest.ResetUserInfo);
             else
@@ -302,18 +306,25 @@ public class AuthenticationService : IAuthenticationService
                 throw new InvalidDataException($"User could not found");
             }
 
-            if (user.PasswordResetCodeExpr > DateTime.Now)
+            var pswReset = await _pswResetRepository
+                .GetByCondition(x => x.UserId == user.Id.ToString());
+
+            if (pswReset is not null && pswReset.Expires > DateTime.Now)
             {
                 statusCode = 400;
                 throw new InvalidDataException("You cannot receive a new reset code yet");
             }
 
             var resetCode = GenerateResetCode();
-            user.PasswordResetCode = resetCode;
-            user.PasswordResetCodeExpr = DateTime.Now.AddMinutes(3);
 
-            _repository.Update(user);
-            await _unitOfWork.SaveAsync();
+            pswReset = new ResetVerify()
+            {
+                UserId = user.Id.ToString(),
+                AuthField = resetCode,
+                Expires = DateTime.Now.AddMinutes(3)
+            };
+
+            await _pswResetRepository.UpdateAsync(pswReset);
 
             try
             {
@@ -361,25 +372,29 @@ public class AuthenticationService : IAuthenticationService
         try
         {
             var user = await _repository.GetByEmailAsync(resetPasswordRequest.email);
+
             if (user is not User)
             {
                 statusCode = 404;
                 throw new InvalidDataException("User could not found.");
             }
 
-            if (string.IsNullOrEmpty(user.PasswordResetCode))
+            var pswReset = await _pswResetRepository
+                .GetByCondition(x => x.UserId == user.Id.ToString());
+
+            if (pswReset is null)
             {
                 statusCode = 404;
                 throw new InvalidDataException("Password reset code not found.");
             }
 
-            if (user.PasswordResetCodeExpr < DateTime.Now)
+            if (pswReset.Expires < DateTime.UtcNow)
             {
                 statusCode = 400;
                 throw new InvalidDataException("The verification code has expired. Please request new code.");
             }
 
-            if (!user.PasswordResetCode.Equals(resetPasswordRequest.verifyCode))
+            if (!pswReset.AuthField.Equals(resetPasswordRequest.verifyCode))
             {
                 statusCode = 400;
                 throw new InvalidDataException("The verification code is invalid. Please request a new code.");
@@ -387,13 +402,10 @@ public class AuthenticationService : IAuthenticationService
 
             var token = await _repository.GenerateVerifyAndResetTokenAsync();
 
-            user.PasswordResetToken = token;
-            user.PasswordResetTokenExpr = DateTime.Now.AddHours(3);
-            user.PasswordResetCodeExpr = DateTime.Now;
-            user.PasswordResetCode = string.Empty;
+            pswReset.AuthField = token;
+            pswReset.Expires = DateTime.Now.AddHours(3);
 
-            _repository.Update(user);
-            await _unitOfWork.SaveAsync();
+            await _pswResetRepository.UpdateAsync(pswReset);
 
             return Response<UserTokenForgetPasswordResponse>
                 .Success(new UserTokenForgetPasswordResponse(token), 200);
@@ -425,9 +437,12 @@ public class AuthenticationService : IAuthenticationService
                 throw new InvalidDataException("User could not found");
             }
 
-            if (string.IsNullOrEmpty(user.PasswordResetToken)
-                || user.PasswordResetTokenExpr < DateTime.Now
-                || !user.PasswordResetToken.Equals(resetRequest.token))
+            var pswReset = await _pswResetRepository
+                .GetByCondition(x => x.UserId == user.Id.ToString());
+
+            if (pswReset is null
+                || pswReset.Expires < DateTime.UtcNow
+                || !pswReset.AuthField.Equals(resetRequest.token))
             {
                 statusCode = 400;
                 throw new InvalidDataException("Invalid token");
@@ -445,8 +460,8 @@ public class AuthenticationService : IAuthenticationService
                 throw new InvalidDataException("The user's old password cannot be the same as the new password");
             }
 
-            user.PasswordResetCodeExpr = DateTime.Now;
-            user.PasswordResetToken = string.Empty;
+            await _pswResetRepository.DeleteByIdAsync(pswReset.Id);
+            
             user.PasswordHash = _passwordHasher.Hash(resetRequest.newPassword);
 
             _repository.Update(user);
@@ -522,7 +537,7 @@ public class AuthenticationService : IAuthenticationService
                 .Fail("Something went wrong.", 500);
         }
     }
-    
+
 
     private UserTokenResponse CreateToken(User user, UserToken userToken, bool populateExp)
     {
@@ -562,5 +577,4 @@ public class AuthenticationService : IAuthenticationService
 
     private string GenerateResetCode() =>
         new Random().Next(100000, 999999).ToString();
-    
 }
