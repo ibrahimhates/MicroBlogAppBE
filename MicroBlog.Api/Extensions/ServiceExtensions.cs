@@ -59,7 +59,7 @@ public static class ServiceExtensions
                 {
                     config.AllowAnyHeader()
                         .AllowAnyMethod()
-                        .WithOrigins("https://localhost:3000", "http://localhost:3000");
+                        .WithOrigins("https://localhost:3000", "http://localhost:3000" , "https://ibrahimhates.github.io");
                 });
         });
     }

@@ -249,21 +249,23 @@ public class AuthenticationService : IAuthenticationService
 
             if (user is not User)
             {
-                statusCode = 404;
+                statusCode = StatusCodes.Status404NotFound;
                 throw new InvalidDataException($"User could not found");
             }
 
+            var token = verifyUserRequestDto.token.Replace(" ", "+");
+            
+            if (string.IsNullOrEmpty(user.EmailVerifyToken)
+                || !user.EmailVerifyToken.Equals(token))
+            {
+                statusCode = StatusCodes.Status400BadRequest;
+                throw new InvalidDataException($"Invalid token");
+            }
+            
             if (user.VerifyEmail)
             {
-                statusCode = 400;
+                statusCode = StatusCodes.Status409Conflict;
                 throw new InvalidDataException($"User is already verify");
-            }
-
-            if (string.IsNullOrEmpty(user.EmailVerifyToken)
-                || !user.EmailVerifyToken.Equals(verifyUserRequestDto.token))
-            {
-                statusCode = 400;
-                throw new InvalidDataException($"Invalid token");
             }
 
             user.VerifyEmail = true;
@@ -461,7 +463,7 @@ public class AuthenticationService : IAuthenticationService
             }
 
             await _pswResetRepository.DeleteByIdAsync(pswReset.Id);
-            
+
             user.PasswordHash = _passwordHasher.Hash(resetRequest.newPassword);
 
             _repository.Update(user);
@@ -561,19 +563,9 @@ public class AuthenticationService : IAuthenticationService
         return Convert.ToBase64String(randomNumber);
     }
 
-    private string? GenerateLink(string email, string token)
-    {
-        var confirmationLink = _linkGenerator.GetUriByAction(
-            _contextAccessor.HttpContext,
-            action: "VerifyEmail",
-            controller: "Auth",
-            values: new
-            {
-                token, email
-            });
-
-        return confirmationLink;
-    }
+    private string? GenerateLink(string email, string token) => 
+        "https://ibrahimhates.github.io/email-verify" +
+        $"?token={token}&email={email}"; // todo confirmation mail u can fix
 
     private string GenerateResetCode() =>
         new Random().Next(100000, 999999).ToString();

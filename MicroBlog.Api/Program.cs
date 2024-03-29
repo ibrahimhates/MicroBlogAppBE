@@ -69,6 +69,8 @@ if (app.Environment.IsDevelopment())
     // }
 }
 
+app.UseCors("MicroBlogAppCorsPolicy");
+
 app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthentication();
