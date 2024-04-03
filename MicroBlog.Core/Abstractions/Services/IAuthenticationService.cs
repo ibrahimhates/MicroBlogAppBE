@@ -10,8 +10,9 @@ public interface IAuthenticationService
     Task<Response<UserTokenResponse>> LoginUserRequestAsync(LoginRequest loginRequest);
     Task<Response<UserTokenResponse>> RefreshTokenAsync(UserTokenResponse refreshRequestToken);
     Task<Response<NoContent>> RegisterUserRequestAsync(RegisterRequest registerRequest);
+    Task<Response<NoContent>> LogoutUserAsync(string userId);
     Task<Response<NoContent>> VerifyUserRequestAsync(VerifyUserRequestDto verifyUserRequestDto);
-    Task<Response<NoContent>> ForgetPasswordRequestAsync(
+    Task<Response<UserIdentifierResponse>> ForgetPasswordRequestAsync(
         ForgetPasswordRequest forgetPasswordRequest);
     Task<Response<UserTokenForgetPasswordResponse>> ForgetPasswordRequestAsync(
         ResetPasswordRequest resetPasswordRequest);

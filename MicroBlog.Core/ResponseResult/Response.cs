@@ -32,7 +32,11 @@ public class Response<T>
         return new Response<T> { Messages =new List<string>() { message }, StatusCode = statusCode, IsSuccessful = true, Pagination = pager };
     }
 
-    
+    public static Response<T> Success(T data,string message, int statusCode, Pager pager = null)
+    {
+        return new Response<T> { Data = data, Messages = new List<string>() { message }, StatusCode = statusCode, IsSuccessful = true, Pagination = pager };
+    }
+
     public static Response<T> Fail(List<string> errors, int statusCode)
     {
         return new Response<T>

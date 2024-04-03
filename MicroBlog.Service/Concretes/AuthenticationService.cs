@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text.Json;
 using AutoMapper;
 using MicroBlog.Core.Abstractions.EmailSendProcedure;
 using MicroBlog.Core.Abstractions.Jwt;
@@ -240,6 +239,51 @@ public class AuthenticationService : IAuthenticationService
         }
     }
 
+    public async Task<Response<NoContent>> LogoutUserAsync(string userId)
+    {
+        int statusCode = 200;
+        try
+        {
+            var result = await _repository.AnyAsync(x => x.Id == new Guid(userId));
+
+            if (!result)
+            {
+                statusCode = StatusCodes.Status404NotFound;
+                throw new InvalidDataException($"The user could not found. {userId}");
+            }
+
+            var userToken = await _userTokenRepository
+            .GetByCondition(x => x.UserId == new Guid(userId), false)
+            .FirstOrDefaultAsync();
+
+            if (userToken is not UserToken)
+            {
+                statusCode = StatusCodes.Status400BadRequest;
+                throw new InvalidDataException($"The user has already logged out. {userId}");
+            }
+
+            _userTokenRepository.Delete(userToken);
+      
+            await _unitOfWork.SaveAsync();
+
+            return Response<NoContent>
+                .Success($"Logout has been successfully completed.", StatusCodes.Status200OK);
+        }
+        catch (InvalidDataException err)
+        {
+            _logger.SendWarning(err.Message);
+            return Response<NoContent>
+                .Fail(err.Message, statusCode);
+        }
+        catch (Exception err)
+        {
+            _logger.SendError(err);
+            return Response<NoContent>
+                .Fail("Something went wrong.", 500);
+        }
+
+    }
+
     public async Task<Response<NoContent>> VerifyUserRequestAsync(VerifyUserRequestDto verifyUserRequestDto)
     {
         int statusCode = 200;
@@ -290,18 +334,15 @@ public class AuthenticationService : IAuthenticationService
         }
     }
 
-    public async Task<Response<NoContent>> ForgetPasswordRequestAsync(
+    public async Task<Response<UserIdentifierResponse>> ForgetPasswordRequestAsync(
         ForgetPasswordRequest forgetPasswordRequest)
     {
         int statusCode = 200;
         try
         {
-            User? user; // todo user email or username get only in one method
-            if (forgetPasswordRequest.RequestType is ForgetPasswordRequestType.EMAIL)
-                user = await _repository.GetByEmailAsync(forgetPasswordRequest.ResetUserInfo);
-            else
-                user = await _repository.GetByUserNameAsync(forgetPasswordRequest.ResetUserInfo);
-
+            User? user = await _repository
+                .GetByUserOrEmailAsync(forgetPasswordRequest.UserNameOrEmail);
+           
             if (user is not User)
             {
                 statusCode = 404;
@@ -343,26 +384,26 @@ public class AuthenticationService : IAuthenticationService
                     " Please try again later.");
             }
 
-            return Response<NoContent>
-                .Success($"The verification code was successfully sent to the following email {user.Email}"
+            return Response<UserIdentifierResponse>
+                .Success(new(user.Id),$"The verification code was successfully sent to the following email {user.Email}"
                     , 200);
         }
         catch (InvalidDataException err)
         {
             _logger.SendWarning(err.Message);
-            return Response<NoContent>
+            return Response<UserIdentifierResponse>
                 .Fail(err.Message, statusCode);
         }
         catch (InvalidOperationException err)
         {
             _logger.SendError(err);
-            return Response<NoContent>
+            return Response<UserIdentifierResponse>
                 .Fail(err.Message, 500);
         }
         catch (Exception err)
         {
             _logger.SendError(err);
-            return Response<NoContent>
+            return Response<UserIdentifierResponse>
                 .Fail("Something went wrong.", 500);
         }
     }
@@ -373,16 +414,16 @@ public class AuthenticationService : IAuthenticationService
         int statusCode = 200;
         try
         {
-            var user = await _repository.GetByEmailAsync(resetPasswordRequest.email);
+            var result = await _repository.AnyAsync(x => x.Id == resetPasswordRequest.userIdentifier);
 
-            if (user is not User)
+            if (result)
             {
                 statusCode = 404;
                 throw new InvalidDataException("User could not found.");
             }
 
             var pswReset = await _pswResetRepository
-                .GetByCondition(x => x.UserId == user.Id.ToString());
+                .GetByCondition(x => x.UserId == resetPasswordRequest.userIdentifier.ToString());
 
             if (pswReset is null)
             {
@@ -431,7 +472,7 @@ public class AuthenticationService : IAuthenticationService
         int statusCode = 200;
         try
         {
-            var user = await _repository.GetByEmailAsync(resetRequest.email);
+            var user = await _repository.GetByIdAsync(resetRequest.userIdentifier);
 
             if (user is not User)
             {

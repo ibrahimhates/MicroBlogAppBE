@@ -31,6 +31,14 @@ public class AuthenticationRepository :  GenericRepository<User,Guid>, IAuthenti
         return user;
     }
 
+    public async Task<User> GetByUserOrEmailAsync(string userNameOrEmail,bool trackChanges = false)
+    {
+        var user = await GetByCondition(x => x.Email == userNameOrEmail 
+        || x.UserName == userNameOrEmail, trackChanges).FirstOrDefaultAsync();
+
+        return user;
+    }
+
     public async Task<string> GenerateVerifyAndResetTokenAsync()
     {
         byte[] tokenBytes = GenerateRandomBytes(32);
