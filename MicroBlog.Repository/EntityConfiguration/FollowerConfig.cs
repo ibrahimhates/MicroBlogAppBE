@@ -16,7 +16,7 @@ public class FollowerConfig : IEntityTypeConfiguration<Follower>
             .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasOne(x => x.FollowerUser)
-            .WithMany()
+            .WithMany(x => x.Followings)
             .HasForeignKey(x => x.FollowerUserId)
             .OnDelete(DeleteBehavior.NoAction);
     }

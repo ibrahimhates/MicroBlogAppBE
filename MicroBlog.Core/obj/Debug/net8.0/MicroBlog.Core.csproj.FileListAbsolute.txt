@@ -1,6 +1,7 @@
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\bin\Debug\net8.0\MicroBlog.Core.deps.json
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\bin\Debug\net8.0\MicroBlog.Core.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\bin\Debug\net8.0\MicroBlog.Core.pdb
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\MicroBlog.Core.csproj.AssemblyReference.cache
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\MicroBlog.Core.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\MicroBlog.Core.AssemblyInfoInputs.cache
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\MicroBlog.Core.AssemblyInfo.cs
@@ -10,4 +11,3 @@ C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\refint\MicroBlog.Core.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\MicroBlog.Core.pdb
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\ref\MicroBlog.Core.dll
-C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Core\obj\Debug\net8.0\MicroBlog.Core.csproj.AssemblyReference.cache

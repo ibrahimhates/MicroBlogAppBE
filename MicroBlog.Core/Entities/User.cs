@@ -22,4 +22,5 @@ public sealed class User : BaseEntity, IEntity<Guid>
     public bool IsActive { get; set; }
     public UserToken UserToken { get; set; }
     public ICollection<Follower> Followers { get; set; }
+    public ICollection<Follower> Followings { get; set; }
 }
