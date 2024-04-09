@@ -10,6 +10,8 @@ public class FollowerConfig : IEntityTypeConfiguration<Follower>
     {
         builder.HasKey(x => x.Id);
 
+        builder.HasIndex(x => new { x.UserId, x.FollowerUserId }).IsUnique();
+
         builder.HasOne(x => x.User)
             .WithMany(x => x.Followers)
             .HasForeignKey(x => x.UserId)

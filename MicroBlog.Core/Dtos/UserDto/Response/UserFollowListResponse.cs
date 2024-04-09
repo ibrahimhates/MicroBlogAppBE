@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace MicroBlog.Core.Dtos.UserDto.Response
 {
     public record UserFollowListResponse(
@@ -11,5 +6,9 @@ namespace MicroBlog.Core.Dtos.UserDto.Response
             string FullName,
             byte[]? ProfilePicture,
             string UserName
-        );
+        )
+    {
+        public bool IsFollower { get; set; } // benim takipcim mi
+        public bool IsFollowing { get; set; } // benim takip ettigim mi
+    }
 }
