@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "jiZ7rU0IvNXpAemfQGPDoEHHHndlqjMLAzazo8ZMNIaCX/+0aJXz1S1dkV0U+FFo/9fE2eiwr2NY54IcYeTXsQ==",
+  "dgSpecHash": "8zeABToacyxDSirzZvQugtSXupu/WsnxP/zJLzuzdF7Npf0XUkCMNQiEOUuscCE8L5tNJtUj9bWAvUIB0nzRhw==",
   "success": true,
   "projectFilePath": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Repository\\MicroBlog.Repository.csproj",
   "expectedPackageFiles": [
@@ -60,6 +60,8 @@
     "C:\\Users\\ibrahim\\.nuget\\packages\\mongodb.driver.core\\2.24.0\\mongodb.driver.core.2.24.0.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\mongodb.libmongocrypt\\1.8.2\\mongodb.libmongocrypt.1.8.2.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
+    "C:\\Users\\ibrahim\\.nuget\\packages\\mysqlconnector\\2.3.5\\mysqlconnector.2.3.5.nupkg.sha512",
+    "C:\\Users\\ibrahim\\.nuget\\packages\\pomelo.entityframeworkcore.mysql\\8.0.2\\pomelo.entityframeworkcore.mysql.8.0.2.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\serilog\\3.1.1\\serilog.3.1.1.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\serilog.aspnetcore\\8.0.2-dev-00336\\serilog.aspnetcore.8.0.2-dev-00336.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\serilog.extensions.hosting\\8.0.0\\serilog.extensions.hosting.8.0.0.nupkg.sha512",

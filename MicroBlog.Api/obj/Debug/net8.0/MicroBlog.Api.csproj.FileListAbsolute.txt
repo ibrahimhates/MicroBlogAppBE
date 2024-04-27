@@ -46,6 +46,8 @@ C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\n
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\MongoDB.Driver.Core.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\MongoDB.Libmongocrypt.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Mono.TextTemplating.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\MySqlConnector.dll
+C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Pomelo.EntityFrameworkCore.MySql.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\RabbitMQ.Client.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.dll
 C:\Users\ibrahim\Desktop\DevTeamProject\MicroBlogAppBE\MicroBlog.Api\bin\Debug\net8.0\Serilog.AspNetCore.dll

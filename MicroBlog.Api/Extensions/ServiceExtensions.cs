@@ -25,14 +25,21 @@ public static class ServiceExtensions
     public static void ConfigureSqlContext(this IServiceCollection services,
         IConfiguration configuration) => services
         .AddDbContext<MicroBlogDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("sqlConnection"))
+            {
+                var connectionString = configuration.GetConnectionString("sqlConnection");
+                // local connection
+                // options.UseSqlServer(connectionString);
+                /* 
+                 mysql connection
+                */options.UseMySql(connectionString,ServerVersion.AutoDetect(connectionString));
+            }
         );
 
     public static void ConfigureMongoDb(this IServiceCollection services)
     {
         services.ConfigureOptions<MongoDbOptionsSetup>();
     }
-    
+
     public static void ConfigureSwaggerGenSetup(this IServiceCollection services)
     {
         services.AddSwaggerGen();
@@ -59,7 +66,7 @@ public static class ServiceExtensions
                 {
                     config.AllowAnyHeader()
                         .AllowAnyMethod()
-                        .WithOrigins("https://localhost:3000", "http://localhost:3000" , "https://ibrahimhates.github.io");
+                        .WithOrigins("https://localhost:3000", "http://localhost:3000", "https://ibrahimhates.github.io");
                 });
         });
     }

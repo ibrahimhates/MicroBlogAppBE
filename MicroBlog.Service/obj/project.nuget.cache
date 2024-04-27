@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "QH9Mu8gXKD4UWdZE/O3MDlhQA2/95/bG6BtDefbJeFUpGzFd74+DVW08TdhN0Ng4RjF+iJLdNklMpQ8ExGPLLw==",
+  "dgSpecHash": "FfBpX+yjIs9A6JLZzD0bZ/lFo96vsH8QlVbgLh7woqY1tzyu4/+UHASCxxjss1zQnlt94pPsARbkDgEAzWeMYA==",
   "success": true,
   "projectFilePath": "C:\\Users\\ibrahim\\Desktop\\DevTeamProject\\MicroBlogAppBE\\MicroBlog.Service\\MicroBlog.Service.csproj",
   "expectedPackageFiles": [
@@ -50,6 +50,8 @@
     "C:\\Users\\ibrahim\\.nuget\\packages\\mongodb.driver\\2.24.0\\mongodb.driver.2.24.0.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\mongodb.driver.core\\2.24.0\\mongodb.driver.core.2.24.0.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\mongodb.libmongocrypt\\1.8.2\\mongodb.libmongocrypt.1.8.2.nupkg.sha512",
+    "C:\\Users\\ibrahim\\.nuget\\packages\\mysqlconnector\\2.3.5\\mysqlconnector.2.3.5.nupkg.sha512",
+    "C:\\Users\\ibrahim\\.nuget\\packages\\pomelo.entityframeworkcore.mysql\\8.0.2\\pomelo.entityframeworkcore.mysql.8.0.2.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\rabbitmq.client\\7.0.0-alpha.4\\rabbitmq.client.7.0.0-alpha.4.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\serilog\\3.1.1\\serilog.3.1.1.nupkg.sha512",
     "C:\\Users\\ibrahim\\.nuget\\packages\\serilog.aspnetcore\\8.0.2-dev-00336\\serilog.aspnetcore.8.0.2-dev-00336.nupkg.sha512",
