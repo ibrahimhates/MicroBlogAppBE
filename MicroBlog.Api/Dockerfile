@@ -7,17 +7,20 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["MicroBlogAppBE/MicroBlogAppBE.csproj", "MicroBlogAppBE/"]
-RUN dotnet restore "MicroBlogAppBE/MicroBlogAppBE.csproj"
+COPY ["MicroBlog.Api/MicroBlog.Api.csproj", "MicroBlog.Api/"]
+COPY ["MicroBlog.Repository/MicroBlog.Repository.csproj", "MicroBlog.Repository/"]
+COPY ["MicroBlog.Core/MicroBlog.Core.csproj", "MicroBlog.Core/"]
+COPY ["MicroBlog.Service/MicroBlog.Service.csproj", "MicroBlog.Service/"]
+RUN dotnet restore "MicroBlog.Api/MicroBlog.Api.csproj"
 COPY . .
-WORKDIR "/src/MicroBlogAppBE"
-RUN dotnet build "MicroBlogAppBE.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/MicroBlog.Api"
+RUN dotnet build "MicroBlog.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "MicroBlogAppBE.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MicroBlog.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "MicroBlogAppBE.dll"]
+ENTRYPOINT ["dotnet", "MicroBlog.Api.dll"]
